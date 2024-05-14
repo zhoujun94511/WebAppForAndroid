@@ -1,0 +1,59 @@
+/* 页面整体样式 */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+    padding: 20px;
+}
+
+/* 标题样式 */
+h1 {
+    text-align: center;
+    color: #343a40;
+}
+
+/* 卡片标题居中 */
+.card-title {
+    text-align: center;
+}
+
+/* 卡片样式 */
+.card {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 卡片标题 */
+.card-header h2 {
+    margin-bottom: 0;
+    font-size: 1.5rem;
+}
+
+/* 按钮样式 */
+button {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+/* 表单选择器样式 */
+.form-select {
+    margin-bottom: 10px;
+}
+
+/* 边框样式 */
+.border {
+    border: 1px solid #ced4da;
+    padding: 10px;
+    border-radius: 4px;
+}
