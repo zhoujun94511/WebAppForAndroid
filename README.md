@@ -1,5 +1,4 @@
 "# WebAppForAndroid" 
-"# WebAppForAndroid" 
 当前仅支持Windows系统使用！！！
 
 使用方法：
@@ -19,6 +18,7 @@
 
 步骤3：访问Web界面
 1. 在启动Flask服务器后，它会在默认的Web浏览器中打开应用，或者您可以手动打开浏览器，访问http://localhost:5000。
+
 步骤4：连接Android设备
 1. 确保您的Android设备已经开启了USB调试选项。
 2. 使用USB线将设备连接到电脑。
