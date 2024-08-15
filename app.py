@@ -21,7 +21,7 @@ app.config['DEBUG'] = True
 
 # 设置全局日志配置
 logging.basicConfig(
-    level=logging.ERROR,  # 设置全局日志级别为 INFO，可以更改为其他级别
+    level=logging.INFO,  # 设置全局日志级别为 INFO，可以更改为其他级别
     format='%(asctime)s [%(levelname)s] %(message)s',  # 设置日志格式
     datefmt='%Y-%m-%d %H:%M:%S'  # 设置日期时间格式
 )
@@ -54,6 +54,8 @@ def favicon():
 @app.route('/refresh', methods=['POST'])
 def refresh():
     devices = adb_utils.get_devices()
+    adb_utils.clear_aab_folders()
+    adb_utils.clear_screenshot_and_record_folders()
     return jsonify(devices)
 
 
@@ -224,7 +226,6 @@ def get_certificate_info_route():
 # 上传aab文件的路由
 @app.route('/upload_aab', methods=['POST'])
 def upload_aab():
-    adb_utils.clear_aab_folders()
     logging.info('接收到上传aab文件请求，正在处理中...')
     file = request.files['file']
     if file.filename == '':
