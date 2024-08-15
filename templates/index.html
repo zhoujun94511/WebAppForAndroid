@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android 调试工具</title>
+    <!-- 引入 Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <!-- 引入 FontAwesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 引入样式文件 -->
+    <link rel="stylesheet" type="text/css" href="/static/style.css">
+    <!-- 引入 SweetAlert 的 CSS 和 JS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+</head>
+<body class="bg-light">
+    <header class="container my-4">
+        <div class="text-center">
+            <h1>Android 调试工具</h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="row g-3">
+            <!-- 设备管理部分 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2 class="card-title">设备管理</h2>
+                    </div>
+                    <div class="card-body">
+                        <select id="device-select" class="form-select mb-2"></select>
+                        <button id="refresh-devices-button" class="btn btn-primary w-100 mb-2" onclick="refreshDevices()">刷新设备</button>
+                        <button id="check-ip-button" class="btn btn-primary w-100 mb-2" onclick="checkDeviceIp()">查看设备IP</button>
+                        <input type="text" id="url-input" class="form-control mb-2" placeholder="请输入需要打开的目标网址">
+                        <button id="open-url-button" class="btn btn-success w-100 mb-2" onclick="openUrl()">打开网页</button>
+                        <button id="get-device-info-button" class="btn btn-success w-100 mb-2" onclick="getDeviceInfo()">获取设备信息</button>
+                        <div id="device-info" class="border p-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 应用管理部分 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2 class="card-title">应用管理</h2>
+                    </div>
+                    <div class="card-body">
+                        <button id="get-installed-apps-button" class="btn btn-success w-100 mb-2" onclick="getInstalledApps()">获取已安装的三方应用包名</button>
+                        <input type="text" id="app-search-input" class="form-control mb-2" placeholder="请输入想要搜索的三方应用包名">
+                        <select id="app-select" class="form-select mb-2"></select>
+                        <button id="uninstall-app-button" class="btn btn-danger w-100 mb-2" onclick="uninstallApp()">卸载应用</button>
+                        <input type="file" id="apk-file" accept=".apk" class="form-control mb-2" multiple>
+                        <div id="install-result" class="modal">
+                            <div class="modal-content">
+                                <h2>应用安装结果</h2>
+                                <div id="failed-installs">
+                                    <h3>安装失败:</h3>
+                                    <ul id="failed-list"></ul>
+                                </div>
+                                <div id="successful-installs">
+                                    <h3>安装成功:</h3>
+                                    <ul id="success-list"></ul>
+                                </div>
+                                <button id="close-result" class="btn btn-primary">确定</button>
+                            </div>
+                        </div>
+                        <button id="install-apk-button" class="btn btn btn-success w-100" onclick="installApk()">单/多应用安装</button>
+                        <button id="clear-app-cache-button" class="btn btn-warning w-100 mb-2" onclick="clearAppCache()">清除应用缓存</button>
+                        <button id="stop-app-button" class="btn btn btn-danger w-100 mb-2" onclick="stopApp()">停止应用运行</button>
+                        <button id="get-current-app-info-button" class="btn btn-primary w-100 mb-2" onclick="getCurrentAppInfo()">获取当前应用信息</button>
+                        <div id="current-app-info" class="border p-3 mb-3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AAB转化部分 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2 class="card-title">AAB转化</h2>
+                    </div>
+                    <div class="card-body">
+                        <input id="file-input" type="file" class="form-control mb-2">
+                        <h5>选择证书:</h5>
+                        <select id="certificate-select" class="form-select mb-2"></select>
+                        <button id="upload-button" class="btn btn-primary w-100 mb-2" onclick="uploadAab()">上传AAB文件并转化</button>
+                        <button id="generate-signature-button" class="btn btn-primary w-100 mb-3">生成随机签名</button>
+                        <h5 class="text-center">转化后的文件列表</h5>
+                        <ul id="file-list"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设备控制部分 -->
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2 class="card-title">设备控制</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center rounded">
+                            <button id="take-screenshot-button" class="btn btn-warning w-100 mb-2" onclick="takeScreenshot()">设备截图</button>
+                            <button id="record-screen-button" class="btn btn-primary w-100 mb-2" onclick="recordScreen()">设备录屏</button>
+                            <button id="restart-device-button" class="btn btn-danger w-100 mb-2" onclick="restartDevice()">设备重启</button>
+                            <button id="enable-wireless-debugging-button" class="btn btn-success w-100 mb-2" onclick="enableWirelessDebugging()">启用无线调试</button>
+                            <button id="disable-wireless-debugging-button" class="btn btn-danger w-100 mb-2" onclick="disableWirelessDebugging()">停用无线调试</button>
+                            <button id="simulate-power-button" class="btn btn-info w-100 mb-2" onclick="simulateKeyPress('power')">模拟锁屏/解锁</button>
+                            <button id="simulate-home-button" class="btn btn-primary w-100 mb-2" onclick="simulateKeyPress('home')">模拟HOME键</button>
+                            <button id="simulate-menu-button" class="btn btn-success w-100 mb-2" onclick="simulateKeyPress('menu')">模拟菜单键</button>
+                            <button id="simulate-back-button" class="btn btn-secondary w-100 mb-2" onclick="simulateKeyPress('back')">模拟返回键</button>
+                            <button id="start-scrcpy-button" class="btn btn-primary w-100 mb-2" onclick="startScrcpy()">启用投屏互动模式（本地）</button>
+                            <button id="stop-scrcpy-button" class="btn btn-danger w-100 mb-2" onclick="stopScrcpy()">停用投屏互动模式（本地）</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 全屏遮罩 -->
+    <div id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- CopyRight -->
+    <footer class="footer mt-auto py-3 text-center">
+        <div class="container">
+            <span class="text-muted">&copy; 2024 WebAppForAndroid. All rights reserved.</span>
+        </div>
+    </footer>
+
+
+    <!-- 引入 jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- 引入 Bootstrap JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+    <!-- 引入JS 脚本 -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
