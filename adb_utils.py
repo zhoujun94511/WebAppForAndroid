@@ -17,37 +17,87 @@ import subprocess
 
 # 设置全局日志配置
 logging.basicConfig(
-    level=logging.ERROR,  # 设置全局日志级别为 INFO，可以更改为其他级别
+    level=logging.INFO,  # 设置全局日志级别为 INFO，可以更改为其他级别
     format='%(asctime)s [%(levelname)s] %(message)s',  # 设置日志格式
     datefmt='%Y-%m-%d %H:%M:%S'  # 设置日期时间格式
 )
 
 
-# 创建截图和录屏储路径
+#  创建截图和录屏存储目录。
 def screenshot_and_record_folders():
-    screenshot_and_record_folder = os.path.join(os.path.dirname(__file__), 'screenshot_and_record')
-    if not os.path.exists(screenshot_and_record_folder):
-        logging.info(f'创建截图与录屏存储路径为: {screenshot_and_record_folder}')
-        os.makedirs(screenshot_and_record_folder)
+    # 获取项目根目录
+    screenshot_and_record_project_root = os.path.dirname(os.path.abspath(__file__))
 
+    # 定义目录路径
+    screenshot_and_record_folder = os.path.join(screenshot_and_record_project_root, 'screenshot_and_record')
     screenshot_folder = os.path.join(screenshot_and_record_folder, 'mobile_screenshot')
-    if not os.path.exists(screenshot_folder):
-        logging.info(f'创建截图存储路径为: {screenshot_folder}')
-        os.makedirs(screenshot_folder)
-
     record_folder = os.path.join(screenshot_and_record_folder, 'mobile_record')
-    if not os.path.exists(record_folder):
-        logging.info(f'创建录屏存储路径为: {record_folder}')
-        os.makedirs(record_folder)
+
+    # 创建screenshot_and_record_folder目录路径（如不存在）
+    os.makedirs(screenshot_and_record_folder, exist_ok=True)
+    logging.info(f'创建截图与录屏存储路径为: {screenshot_and_record_folder}')
+
+    # 创建截图文件目录路径（如不存在）
+    os.makedirs(screenshot_folder, exist_ok=True)
+    logging.info(f'创建截图存储路径为: {screenshot_folder}')
+
+    # 创建录屏文件目录路径（如不存在）
+    os.makedirs(record_folder, exist_ok=True)
+    logging.info(f'创建录屏存储路径为: {record_folder}')
 
     return screenshot_and_record_folder, record_folder, screenshot_folder
 
 
+# 创建 AAB 转换相关目录。
+def create_aab_converted_directories():
+    # 获取项目根目录
+    aab_project_root = os.path.dirname(os.path.abspath(__file__))
+
+    # 定义目录路径
+    aab_conversion_folder = os.path.join(aab_project_root, 'aab_conversion')
+    download_folder = os.path.join(aab_conversion_folder, 'download_folder')
+    upload_folder = os.path.join(aab_conversion_folder, 'upload_folder')
+    certificate_folder = os.path.join(aab_conversion_folder, 'certificate_folder')
+    certificate_resources_folder = os.path.join(certificate_folder, 'certificate_resources')
+    certificate_var_folder = os.path.join(certificate_folder, 'certificate_var')
+    generate_random_signature_folder = os.path.join(certificate_folder, 'generate_random_signature')
+
+    # 创建aab_conversion_folder目录（如不存在）
+    os.makedirs(aab_conversion_folder, exist_ok=True)
+    logging.info(f'创建 AAB 转换主目录: {aab_conversion_folder}')
+
+    # 创建下载文件目录路径（如不存在）
+    os.makedirs(download_folder, exist_ok=True)
+    logging.info(f'创建下载文件夹路径为: {download_folder}')
+
+    # 创建上传文件目录路径（如不存在）
+    os.makedirs(upload_folder, exist_ok=True)
+    logging.info(f'创建上传文件夹路径为: {upload_folder}')
+
+    # 创建证书文件目录路径（如不存在）
+    os.makedirs(certificate_folder, exist_ok=True)
+    logging.info(f'创建证书文件夹路径为: {certificate_folder}')
+
+    # 创建证书文件存储目录路径（如不存在）
+    os.makedirs(certificate_resources_folder, exist_ok=True)
+    logging.info(f'创建证书文件存储目录路径为: {certificate_resources_folder}')
+
+    # 创建证书配置参数文件目录路径（如不存在）
+    os.makedirs(certificate_var_folder, exist_ok=True)
+    logging.info(f'创建证书配置参数文件目录路径为: {certificate_var_folder}')
+
+    # 创建随机证书配置文件目录路径（如不存在）
+    os.makedirs(generate_random_signature_folder, exist_ok=True)
+    logging.info(f'创建随机证书配置文件目录路径为: {generate_random_signature_folder}')
+
+    return aab_conversion_folder, download_folder, upload_folder, certificate_folder,certificate_resources_folder,certificate_var_folder,generate_random_signature_folder
+
+
 # 清理aab生成使用过的文件夹
 def clear_aab_folders():
-    aab_conversion_clean_folder = os.path.join(os.path.dirname(__file__), 'aab_conversion')
-    download_folder_clean = os.path.join(aab_conversion_clean_folder, 'download_folder')
-    upload_folder_clean = os.path.join(aab_conversion_clean_folder, 'upload_folder')
+    _, download_folder, upload_folder, _, _, _, _ = create_aab_converted_directories()
+    download_folder_clean = download_folder
+    upload_folder_clean = upload_folder
 
     # 清理下载文件夹
     for filename in os.listdir(download_folder_clean):
@@ -73,13 +123,7 @@ def clear_aab_folders():
 # 清理证书生成使用过的文件夹
 def clear_generate_random_signature_folder():
     # 获取当前文件的目录
-    generate_random_signature_current_dir = os.path.dirname(__file__)
-
-    # 构建要清理的文件夹路径
-    generate_random_signature_folder = os.path.join(generate_random_signature_current_dir, 'aab_conversion',
-                                                    'certificate_folder',
-                                                    'generate_random_signature')
-
+    _, _, _, _, _, _, generate_random_signature_folder = create_aab_converted_directories()
     # 清理文件夹中的文件
     for filename in os.listdir(generate_random_signature_folder):
         file_path = os.path.join(generate_random_signature_folder, filename)
@@ -93,15 +137,14 @@ def clear_generate_random_signature_folder():
 
 # 清理截图与录屏使用过的文件夹
 def clear_screenshot_and_record_folders():
-    screenshot_and_record_folder = os.path.join(os.path.dirname(__file__), 'screenshot_and_record')
-    screenshot_folder_clean = os.path.join(screenshot_and_record_folder, 'mobile_screenshot')
-    record_folder_clean = os.path.join(screenshot_and_record_folder, 'mobile_record')
+
+    _, record_folder, screenshot_folder = screenshot_and_record_folders()
 
     logging.info(f'正在清理截图与录屏文件夹...')
 
     # 清理screenshot文件夹
-    for filename in os.listdir(screenshot_folder_clean):
-        file_path = os.path.join(screenshot_folder_clean, filename)
+    for filename in os.listdir(screenshot_folder):
+        file_path = os.path.join(screenshot_folder, filename)
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
@@ -110,8 +153,8 @@ def clear_screenshot_and_record_folders():
             logging.error(f"清理截图文件夹 {file_path} 时出错: {e}")
 
     # 清理record文件夹
-    for filename in os.listdir(record_folder_clean):
-        file_path = os.path.join(record_folder_clean, filename)
+    for filename in os.listdir(record_folder):
+        file_path = os.path.join(record_folder, filename)
         try:
             if os.path.isfile(file_path):
                 os.unlink(file_path)
@@ -188,7 +231,6 @@ def get_devices():
         devices = client.device_list()  # 使用 device_list 方法
         device_serials = [device.serial for device in devices]
         logging.info(f'获取到的设备列表信息是: {device_serials}')
-        clear_screenshot_and_record_folders()  # 设备每次刷新时清理一次截图与录屏文件夹
         return device_serials
     except Exception as e:
         logging.error(f'获取设备信息失败: {e}')
@@ -371,7 +413,7 @@ def record_screen(device_id, duration):
 
 # 提供下载转换后的文件
 def get_take_screenshot_and_record_files():
-    screenshot_and_record_folder, record_folder, screenshot_folder = screenshot_and_record_folders()
+    _, record_folder, screenshot_folder = screenshot_and_record_folders()
 
     converted_files = []
 
@@ -721,14 +763,8 @@ def get_bundletool_path():
 
 # 获取证书变量文件路径
 def get_certificate_var_file_path():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    certificate_var_file = os.path.join(
-        script_dir,
-        'aab_conversion',
-        'certificate_folder',
-        'certificate_var',
-        'certificate_var.json'
-    )
+    _, _, _, _, _, certificate_var_folder, _ = create_aab_converted_directories()
+    certificate_var_file = os.path.join(certificate_var_folder, 'certificate_var.json')
     logging.info(f"证书变量文件路径设置为: {certificate_var_file}")
     return certificate_var_file
 
@@ -756,13 +792,7 @@ def convert_aab(filename, display_name):
     if not os.path.exists(bundletool_path):
         logging.error('bundletool.jar 文件不存在，请检查路径')
         raise Exception('bundletool.jar 文件不存在，请检查路径')
-
-    project_root = os.path.dirname(os.path.abspath(__file__))
-    aab_conversion_folder = os.path.join(project_root, 'aab_conversion')
-    download_folder = os.path.join(aab_conversion_folder, 'download_folder')
-    upload_folder = os.path.join(aab_conversion_folder, 'upload_folder')
-    certificate_folder = os.path.join(aab_conversion_folder, 'certificate_folder')
-
+    _, download_folder, upload_folder, certificate_folder, certificate_resources_folder, _, _ = create_aab_converted_directories()
     aab_conversion_path = os.path.join(download_folder, filename)
     apks_conversion_path = os.path.join(upload_folder, filename.replace('.aab', '.apks'))
     apk_conversion_path = os.path.join(upload_folder, filename.replace('.aab', '.apk'))
@@ -778,7 +808,7 @@ def convert_aab(filename, display_name):
         return False
 
     # 使用 certificate_info 中的数据
-    ks_path = os.path.join(certificate_folder, 'certificate_resources', certificate_info['name'])
+    ks_path = os.path.join(certificate_resources_folder, certificate_info['name'])
     ks_pass = certificate_info['keystore_password']
     ks_key_alias = certificate_info['key_alias']
     ks_key_pass = certificate_info['key_password']
@@ -848,8 +878,7 @@ def convert_aab(filename, display_name):
 
 # 提供下载转换后的文件
 def get_converted_files():
-    aab_conversion_folder = os.path.join(os.path.dirname(__file__), 'aab_conversion')
-    upload_folder = os.path.join(aab_conversion_folder, 'upload_folder')
+    _, _, upload_folder, _, _, _, _ = create_aab_converted_directories()
 
     converted_files = []
     for root, dirs, files in os.walk(upload_folder):
@@ -879,17 +908,11 @@ def generate_signature():
             logging.error("keytool 未找到，请确保已正确配置 JDK 并将其添加到系统 PATH 中。")
             return
 
-        project_root = os.path.dirname(os.path.abspath(__file__))
-        generate_path = os.path.join(project_root, "aab_conversion", "certificate_folder", "generate_random_signature")
-        resources_path = os.path.join(project_root, "aab_conversion", "certificate_folder", "certificate_resources")
-        var_path = os.path.join(project_root, "aab_conversion", "certificate_folder", "certificate_var")
+        _, _, _, _, certificate_resources_folder, certificate_var_folder, generate_random_signature_folder = create_aab_converted_directories()
 
-        if not os.path.exists(generate_path):
-            os.makedirs(generate_path)
-        if not os.path.exists(resources_path):
-            os.makedirs(resources_path)
-        if not os.path.exists(var_path):
-            os.makedirs(var_path)
+        generate_path = generate_random_signature_folder
+        resources_path = certificate_resources_folder
+        var_path = certificate_var_folder
 
         os.chdir(generate_path)
         timestamp = time.strftime('%Y%m%d%H%M%S')
