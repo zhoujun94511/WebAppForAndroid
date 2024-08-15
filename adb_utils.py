@@ -1,5 +1,4 @@
 import os
-<<<<<<< HEAD
 import re
 import time
 import json
@@ -15,28 +14,15 @@ import adbutils
 import platform
 import tempfile
 import subprocess
-=======
-import shutil
-import adbutils
-import logging
-import time
-import subprocess
-import tempfile
-import re
-import platform
-import psutil
-
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
 # 设置全局日志配置
 logging.basicConfig(
-    level=logging.INFO,  # 设置全局日志级别为 INFO，可以更改为其他级别
+    level=logging.ERROR,  # 设置全局日志级别为 INFO，可以更改为其他级别
     format='%(asctime)s [%(levelname)s] %(message)s',  # 设置日志格式
     datefmt='%Y-%m-%d %H:%M:%S'  # 设置日期时间格式
 )
 
 
-<<<<<<< HEAD
 # 创建截图和录屏储路径
 def screenshot_and_record_folders():
     screenshot_and_record_folder = os.path.join(os.path.dirname(__file__), 'screenshot_and_record')
@@ -164,50 +150,6 @@ def initialize_adb():
     # 获取当前脚本所在的目录
     script_dir_adb = os.path.dirname(os.path.abspath(__file__))
     logging.info(f"获取到当前脚本所在目录是: {script_dir_adb}")
-=======
-def create_storage_path():
-    """
-    创建截图存录屏储路径
-    """
-    # 获取当前脚本所在的目录
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # 定义存储路径为脚本所在目录下的 /screenshots 文件夹
-    storage_path = os.path.join(script_dir, 'screenshots')
-
-    # 确保存储目录存在
-    if not os.path.exists(storage_path):
-        logging.info(f'创建截图录屏存储路径: {storage_path}')
-        os.makedirs(storage_path)
-
-    # 返回存储路径
-    return storage_path
-
-
-# 调用函数创建截图存储路径，并将返回值存储在变量中
-storage_upath = create_storage_path()
-
-
-# # 初始化adb服务
-# def initialize_adb():
-#     logging.info('正在初始化 ADB 服务...')
-#     subprocess.run(['adb', 'start-server'])
-#
-#     # 检查 ADB 服务器状态
-#     result = subprocess.run(['adb', 'devices'], capture_output=True, text=True)
-#     if 'List of devices attached' not in result.stdout:
-#         raise Exception('Failed to connect to ADB server.')
-#     logging.info('ADB 服务初始化完毕')
-
-def get_windows():
-    return platform.system().lower() == 'windows'
-
-
-def initialize_adb():
-    # 获取当前脚本所在的目录
-    script_dir_adb = os.path.dirname(os.path.abspath(__file__))
-    logging.info(f"当前脚本所在目录: {script_dir_adb}")
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
     # 查询当前环境变量是否配置了adb
     adb_in_path = shutil.which("adb")
@@ -228,28 +170,19 @@ def initialize_adb():
         logging.info(f"选择的ADB路径: {adb_path}")
 
     # 初始化adb服务
-<<<<<<< HEAD
     logging.info('正在初始化ADB服务...')
-=======
-    logging.info('正在初始化 ADB 服务...')
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     subprocess.run([adb_path, 'start-server'])
 
     # 检查 ADB 服务器状态
     result = subprocess.run([adb_path, 'devices'], capture_output=True, text=True)
     if 'List of devices attached' not in result.stdout:
         raise Exception('Failed to connect to ADB server.')
-<<<<<<< HEAD
     logging.info('获取到ADB服务初始化完毕...')
-=======
-    logging.info('ADB 服务初始化完毕')
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
 
 # 获取设备列表
 def get_devices():
     try:
-<<<<<<< HEAD
         logging.info('正在获取设备信息...')
         client = adbutils.AdbClient()
         devices = client.device_list()  # 使用 device_list 方法
@@ -300,29 +233,6 @@ def get_installed_apps(device_id, timeout=5):
         return []
     except Exception as e:
         logging.error(f'获取已安装第三方应用失败: {e}')
-=======
-        logging.info('正在获取设备列表...')
-        client = adbutils.AdbClient()
-        devices = client.device_list()  # 使用 device_list 方法
-        device_serials = [device.serial for device in devices]
-        logging.info(f'获取到的设备列表: {device_serials}')
-        return device_serials
-    except Exception as e:
-        logging.error(f'获取设备列表失败: {e}')
-        return []
-
-
-# 获取已安装应用
-def get_installed_apps(device_id):
-    try:
-        logging.info(f'正在获取设备 {device_id} 上的已安装应用...')
-        device = adbutils.adb.device(device_id)
-        packages = device.list_packages()
-        logging.info(f'设备 {device_id} 上的已安装应用: {packages}')
-        return packages
-    except Exception as e:
-        logging.error(f'获取已安装应用失败: {e}')
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         return []
 
 
@@ -331,13 +241,8 @@ def uninstall_app(device_id, package_name):
     try:
         logging.info(f'正在卸载设备 {device_id} 上的应用 {package_name}...')
         if not device_id or not package_name:
-<<<<<<< HEAD
             logging.warning('设备ID和应用包名缺失')
             return {'success': False, 'error': '设备ID和包应用包名缺失'}
-=======
-            logging.warning('设备 ID 和包名是必需的')
-            return {'success': False, 'error': '设备 ID 和包名是必需的'}
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
         device = adbutils.adb.device(device_id)
         device.uninstall(package_name)
@@ -349,7 +254,6 @@ def uninstall_app(device_id, package_name):
 
 
 # 安装应用
-<<<<<<< HEAD
 def install_apk(device_id, apk_files):
     try:
         logging.info(f'正在为设备 {device_id} 安装 APK 文件...')
@@ -386,56 +290,10 @@ def install_apk(device_id, apk_files):
 # 截图函数
 def take_screenshot(device_id):
     _, _, screenshot_folder = screenshot_and_record_folders()
-=======
-def install_apk(device_id, apk_file):
-    try:
-        logging.info(f'正在为设备 {device_id} 安装 APK 文件 {apk_file.filename}...')
-
-        # 检查文件是否是 .apk 格式
-        if not apk_file.filename.endswith('.apk'):
-            logging.warning('文件格式错误：只能安装 .apk 格式的文件')
-            return {'success': False, 'error': '文件格式错误：只能安装 .apk 格式的文件'}
-
-        # 通过 adbutils 获取设备对象
-        device = adbutils.adb.device(device_id)
-
-        # 使用临时文件夹保存 APK 文件
-        with tempfile.TemporaryDirectory() as temp_dir:
-            apk_filename = apk_file.filename
-            apk_path = os.path.join(temp_dir, apk_filename)
-
-            # 将 APK 文件保存到临时文件夹
-            apk_file.save(apk_path)
-            logging.info(f'APK 文件已保存到临时文件夹: {apk_path}')
-
-            # 检查 APK 文件是否存在
-            if not os.path.exists(apk_path):
-                raise FileNotFoundError(f"找不到指定的 APK 文件：{apk_path}")
-
-            # 使用 adbutils 进行 APK 安装
-            device.install(apk_path)
-            logging.info(f'APK 文件 {apk_path} 安装成功')
-
-            # 返回安装成功的结果
-            return {'success': True}
-
-    except FileNotFoundError as e:
-        logging.error(f'安装 APK 失败: {e}')
-        return {'success': False, 'error': str(e)}
-
-    except Exception as e:
-        logging.error(f'安装 APK 失败: {e}')
-        return {'success': False, 'error': str(e)}
-
-
-# 截图
-def take_screenshot(device_id):
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     try:
         logging.info(f'正在为设备 {device_id} 截图...')
         device = adbutils.adb.device(device_id)
 
-<<<<<<< HEAD
         if not device.is_screen_on():
             logging.error('设备屏幕已锁屏，无法进行截图。')
             return {'success': False, 'error': '设备屏幕已锁屏，无法进行截图。'}
@@ -448,19 +306,6 @@ def take_screenshot(device_id):
         pil_image.save(local_screenshot_path)
         logging.info(f'截图保存至: {local_screenshot_path}')
         return {'success': True, 'path': local_screenshot_path, 'filename': filename}
-=======
-        # 检查屏幕是否亮屏
-        if not device.is_screen_on():
-            logging.error('设备屏幕未亮，无法进行截图。')
-            return {'success': False, 'error': '设备屏幕未亮，无法进行截图。'}
-
-        timestamp = time.strftime('%Y%m%d%H%M%S')
-        local_screenshot_path = os.path.join(storage_upath, f'screenshot_{timestamp}.png')
-        pil_image = device.screenshot()
-        pil_image.save(local_screenshot_path)
-        logging.info(f'截图保存至: {local_screenshot_path}')
-        return {'success': True, 'path': local_screenshot_path}
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     except Exception as e:
         logging.error(f'截图失败: {e}')
         return {'success': False, 'error': str(e)}
@@ -468,16 +313,12 @@ def take_screenshot(device_id):
 
 # 录屏函数
 def record_screen(device_id, duration):
-<<<<<<< HEAD
     _, record_folder, _ = screenshot_and_record_folders()
-=======
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     try:
         logging.info(f'正在为设备 {device_id} 录屏，时长: {duration} 秒...')
         duration = int(duration)
         device = adbutils.adb.device(device_id)
 
-<<<<<<< HEAD
         if not device.is_screen_on():
             logging.error('设备屏幕已锁屏，无法进行录屏。')
             return {'success': False, 'error': '设备屏幕已锁屏，无法进行录屏。'}
@@ -549,27 +390,6 @@ def get_take_screenshot_and_record_files():
     return converted_files
 
 
-=======
-        # 检查屏幕是否亮屏
-        if not device.is_screen_on():
-            logging.error('设备屏幕未亮，无法进行录屏。')
-            return {'success': False, 'error': '设备屏幕未亮，无法进行录屏。'}
-
-        timestamp = time.strftime('%Y%m%d%H%M%S')
-        device_record_path = f'/sdcard/screen_record_{timestamp}.mp4'
-        screenrecord_command = f"screenrecord --time-limit {duration} {device_record_path}"
-        device.shell(screenrecord_command)
-        local_record_path = os.path.join(storage_upath, f'screen_record_{timestamp}.mp4')
-        device.sync.pull(device_record_path, local_record_path)
-        device.shell(f'rm {device_record_path}')
-        logging.info(f'录屏完成，保存至: {local_record_path}')
-        return {'success': True, 'path': local_record_path}
-    except Exception as e:
-        logging.error(f'录屏失败: {e}')
-        return {'success': False, 'error': str(e)}
-
-
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 # 重启设备
 def restart_device(device_id):
     try:
@@ -589,11 +409,7 @@ def get_new_device_info(device_id):
         logging.info(f'正在获取设备 {device_id} 的信息...')
         # 使用 adb 命令获取设备信息
         command = f'adb -s {device_id} shell getprop'
-<<<<<<< HEAD
         # logging.info(f'执行命令: {command}')
-=======
-        logging.info(f'执行命令: {command}')
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
         output = subprocess.check_output(command, shell=True, encoding='utf-8')
         logging.debug(f'ADB 输出: \n{output}')
@@ -610,11 +426,7 @@ def get_new_device_info(device_id):
             'ro.serialno': '设备序列号'
         }
 
-<<<<<<< HEAD
         # 需要获取的参数列表（高通芯片）
-=======
-        # 高通芯片上的需要获取的参数列表
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         desired_properties_qualcomm = {
             'ro.product.model': '设备名称',
             'ro.product.brand': '设备品牌',
@@ -648,10 +460,6 @@ def get_new_device_info(device_id):
                     is_qualcomm = True
 
         # 根据芯片品牌选择合适的字典
-<<<<<<< HEAD
-=======
-        # 如果既不是 MTK 也不是高通，则选择默认的 desired_properties_mtk
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         if is_qualcomm:
             desired_properties = desired_properties_qualcomm
         elif is_mtk:
@@ -687,13 +495,8 @@ def get_current_app_info(device_id):
 
         # 检查屏幕是否亮屏
         if not device.is_screen_on():
-<<<<<<< HEAD
             logging.error('设备屏幕已锁屏，无法获取当前应用信息，请解锁后重试。')
             return {'success': False, 'error': '设备屏幕已锁屏，无法获取当前应用信息，请解锁后重试。'}
-=======
-            logging.error('设备屏幕未亮，无法获取当前应用信息。')
-            return {'success': False, 'error': '设备屏幕未亮，无法获取当前应用信息。'}
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
         # 使用命令获取当前聚焦窗口的信息
         focused_window_info = device.shell("dumpsys window | grep mFocusedWindow")
@@ -779,13 +582,8 @@ def enable_wireless_debugging(device_id, max_retries=2):
             except subprocess.CalledProcessError as e:
                 if "10061" in str(e):  # 目标计算机积极拒绝连接错误
                     # 重新设置TCP端口
-<<<<<<< HEAD
                     device.shell(f'adb -s {device_id} tcpip 5555')
                     logging.info(f"已重新设置设备 {device_id} 的无线调试端口为：5555")
-=======
-                    device.shell('setprop service.adb.tcp.port 5555')
-                    logging.info("重新设置 service.adb.tcp.port 为 5555")
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                     retries += 1
                     if retries >= max_retries:
                         logging.warning(f"已达到最大重试次数 ({max_retries}), 无法连接到任何 IP 地址的无线调试端口")
@@ -811,7 +609,6 @@ def disable_wireless_debugging(device_id, max_retries=3):
         logging.info(f"正在为设备 {device_id} 禁用无线调试...")
         device = adbutils.adb.device(device_id)
 
-<<<<<<< HEAD
         # 获取设备端口号
         cmd = f"adb -s {device_id} shell getprop service.adb.tcp.port"
         result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
@@ -821,19 +618,12 @@ def disable_wireless_debugging(device_id, max_retries=3):
         port = int(result.stdout.strip())
         logging.info(f"设备端口号为 {port}")
 
-=======
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         # 获取设备IP地址列表
         ip_addresses = get_device_ip_address(device_id)
         if not ip_addresses:
             logging.warning("无法获取设备 IP 地址,无法断开无线调试连接")
             return {'success': False, 'error': '无法获取设备 IP 地址'}
 
-<<<<<<< HEAD
-=======
-        port = '5555'
-
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         # 关闭设备端的无线调试选项
         device.shell('stop adbd')
         logging.info("停止 adb 服务")
@@ -841,7 +631,6 @@ def disable_wireless_debugging(device_id, max_retries=3):
         logging.info("启动 adb 服务")
 
         # 断开对应IP地址的无线连接
-<<<<<<< HEAD
         disconnected = False
         for ip_addr in ip_addresses:
             retries = 0
@@ -873,29 +662,6 @@ def disable_wireless_debugging(device_id, max_retries=3):
             logging.warning("无法断开与任何 IP 地址的无线连接")
             return {'success': False, 'error': "无法断开与任何 IP 地址的无线连接"}
 
-=======
-        retries = 0
-        for ip_addr in ip_addresses:
-            disconnect_cmd = f"adb disconnect {ip_addr}:{port}"
-            try:
-                subprocess.run(disconnect_cmd, shell=True, check=True)
-                logging.info(f"已断开与设备 {ip_addr}:{port} 的无线连接")
-            except subprocess.CalledProcessError as e:
-                if "10061" in str(e):  # 目标计算机积极拒绝连接错误
-                    # 重新设置TCP端口
-                    device.shell('setprop service.adb.tcp.port 5555')
-                    logging.info("重新设置 service.adb.tcp.port 为 5555")
-                    retries += 1
-                    if retries >= max_retries:
-                        logging.warning(f"已达到最大重试次数 ({max_retries}), 无法断开与任何 IP 地址的无线连接")
-                        return {'success': False, 'error': f"已达到最大重试次数 ({max_retries}), 无法断开与任何 IP 地址的无线连接"}
-                    else:
-                        continue  # 继续断开连接
-                logging.warning(f"无法断开与 {ip_addr}:{port} 的连接, 错误: {e}")
-
-        logging.info("无线调试已禁用")
-        return {'success': True}
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     except subprocess.CalledProcessError as e:
         logging.error(f"执行 adb 命令失败: {e}")
         return {'success': False, 'error': str(e)}
@@ -925,11 +691,7 @@ def start_scrcpy(device_id):
         logging.info("scrcpy 启动成功")
         return {'success': True}, 200
     except Exception as e:
-<<<<<<< HEAD
         logging.exception("scrcpy启动失败")
-=======
-        logging.exception("启动scrcpy失败")
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         return {'success': False, 'error': str(e)}, 500
 
 
@@ -942,7 +704,6 @@ def stop_scrcpy():
                 proc.terminate()
                 return {'success': True}, 200
 
-<<<<<<< HEAD
         # 如果没有找到名为'scrcpy'的进程
         return {'success': False, 'error': 'scrcpy 进程未找到'}, 200
     except Exception as e:
@@ -1195,6 +956,7 @@ def generate_signature():
     except Exception as e:
         logging.error(f"发生意外错误: {e}")
 
+
 # 设备点击：电源、HOME、菜单、返回
 def simulate_key_press(device_id, key):
     key_codes = {
@@ -1249,11 +1011,3 @@ def stop_app(device_id, package_name):
         logging.info(f"已停止应用 {package_name} 的运行")
     except Exception as e:
         logging.error(f"停止应用运行失败: {e}")
-
-=======
-        # 如果没有找到名为'scrcpy.exe'的进程
-        return {'success': False, 'error': 'scrcpy 进程未找到'}, 200
-    except Exception as e:
-        logging.exception("停止scrcpy失败")
-        return {'success': False, 'error': str(e)}, 500
->>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
