@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* 定义全局变量 (适用于 SASS/LESS 等预处理器)
 $primary-color: #343a40;
 $secondary-color: #ffa500;
@@ -16,12 +17,24 @@ body {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat; /* 禁止背景图片重复 */
+=======
+/* 页面整体样式 */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f8f9fa;
+    padding: 20px;
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 }
 
 /* 标题样式 */
 h1 {
     text-align: center;
+<<<<<<< HEAD
     color: #343a40; /* 主要文字颜色 */
+=======
+    color: #343a40;
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 }
 
 /* 卡片标题居中 */
@@ -31,8 +44,13 @@ h1 {
 
 /* 卡片样式 */
 .card {
+<<<<<<< HEAD
     border-radius: 8px; /* 圆角 */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+=======
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 }
 
 /* 卡片标题 */
@@ -48,9 +66,12 @@ button {
     padding: 10px;
     border-radius: 5px;
     transition: background-color 0.3s ease;
+<<<<<<< HEAD
     background-color: #343a40;
     color: #fff;
     border: none;
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 }
 
 button:hover {
@@ -58,8 +79,12 @@ button:hover {
 }
 
 button:active {
+<<<<<<< HEAD
     transform: scale(0.98); /* 按下时缩小 */
     will-change: transform; /* 提高动画性能 */
+=======
+    transform: scale(0.98);
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 }
 
 /* 表单选择器样式 */
@@ -72,6 +97,7 @@ button:active {
     border: 1px solid #ced4da;
     padding: 10px;
     border-radius: 4px;
+<<<<<<< HEAD
 }
 
 /* 新添加的列样式 */
@@ -211,3 +237,6 @@ button:active {
     z-index: 10;
     background-color: #f8f9fa; /* 背景色 */
 }
+=======
+}
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import os
 import json
 import time
@@ -9,6 +10,15 @@ import webbrowser
 from flask import Flask, render_template, request, jsonify, abort, send_from_directory, send_file
 from adb_utils import uninstall_app, get_new_device_info, get_windows, start_scrcpy, stop_scrcpy, \
     get_local_ip
+=======
+import threading
+import time
+import webbrowser
+import logging
+import adb_utils
+from flask import Flask, render_template, request, jsonify, abort
+from adb_utils import uninstall_app, initialize_adb, get_new_device_info, get_windows, start_scrcpy, stop_scrcpy
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
 # 初始化 Flask 应用
 app = Flask(__name__)
@@ -28,13 +38,21 @@ logging.basicConfig(
 
 
 # 初始化服务
+<<<<<<< HEAD
 @app.before_request
+=======
+@app.before_first_request
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 def on_first_request():
     if not get_windows():
         # 如果不是Windows系统，终止初始化
         abort(400, "抱歉，当前应用仅支持Windows系统！！！")
+<<<<<<< HEAD
     adb_utils.initialize_adb()
     # adb_utils.initialize_ws_scrcpy()
+=======
+    initialize_adb()
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
 
 # 主页视图
@@ -44,12 +62,15 @@ def index():
     return render_template('index.html', devices=devices)
 
 
+<<<<<<< HEAD
 # favicon定义
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
 
 
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 # 刷新设备列表
 @app.route('/refresh', methods=['POST'])
 def refresh():
@@ -57,7 +78,11 @@ def refresh():
     return jsonify(devices)
 
 
+<<<<<<< HEAD
 # 获取已安装应用
+=======
+# 读取已安装应用
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 @app.route('/get_apps', methods=['POST'])
 def get_apps():
     device_id = request.form.get('device_id')
@@ -65,6 +90,7 @@ def get_apps():
     return jsonify(apps)
 
 
+<<<<<<< HEAD
 # 搜索已安装应用信息路由
 @app.route('/search_apps', methods=['POST'])
 def search_apps():
@@ -81,6 +107,8 @@ def search_apps():
         return jsonify({'error': str(e)}), 500
 
 
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 # 卸载应用
 @app.route('/uninstall_app', methods=['POST'])
 def uninstall_app_route():
@@ -90,6 +118,7 @@ def uninstall_app_route():
     return jsonify(result)
 
 
+<<<<<<< HEAD
 # 安装应用
 @app.route('/install_apk', methods=['POST'])
 def install_apk():
@@ -101,6 +130,15 @@ def install_apk():
 
     results = adb_utils.install_apk(device_id, apk_files)
     return jsonify(results)
+=======
+# 安装 APK
+@app.route('/install_apk', methods=['POST'])
+def install_apk():
+    device_id = request.form.get('device_id')
+    apk_file = request.files.get('apk_file')
+    result = adb_utils.install_apk(device_id, apk_file)
+    return jsonify(result)
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
 
 # 截图
@@ -168,6 +206,79 @@ def disable_wireless_debugging():
     return jsonify(result)
 
 
+<<<<<<< HEAD
+=======
+# # 启用投屏互动模式
+# @app.route('/scrcpy', methods=['POST'])
+# def start_scrcpy():
+#     device_id = request.form.get('device_id')
+#     if not device_id:
+#         return jsonify({'success': False, 'error': 'Device ID not provided.'})
+#
+#     try:
+#         # 指定 scrcpy.exe 的完整路径
+#         scrcpy_exe_path = r'D:\Projectx\WebAppForAndroid\Pconfigure\scrcpy-win64-v2.4\scrcpy.exe'
+#
+#         # 执行 scrcpy 命令，指定设备 ID
+#         scrcpy_command = f'"{scrcpy_exe_path}" -s {device_id}'
+#         subprocess.Popen(scrcpy_command, shell=True)
+#
+#         return jsonify({'success': True})
+#     except Exception as e:
+#         return jsonify({'success': False, 'error': str(e)})
+
+# # 启用投屏互动模式
+# @app.route('/scrcpy', methods=['POST'])
+# def start_scrcpy():
+#     script_dir_scrcpy = os.path.dirname(os.path.abspath(__file__))
+#     logging.info(f"当前脚本所在目录: {script_dir_scrcpy}")
+#     device_id = request.form.get('device_id')
+#     logging.info(f"当前获取的设备ID为: {device_id}")
+#     if not device_id:
+#         return jsonify({'success': False, 'error': 'Device ID not provided.'})
+#
+#     try:
+#         # 检测系统架构
+#         system_bits = platform.architecture()[0]
+#         logging.info(f"系统位数: {system_bits}")
+#
+#         # 构建 scrcpy-win32-v2.4 和 scrcpy-win64-v2.4 的完整路径
+#         scrcpy_exe_path_32 = os.path.join(script_dir_scrcpy, "Pconfigure", "scrcpy-win32-v2.4", "scrcpy.exe")
+#         scrcpy_exe_path_64 = os.path.join(script_dir_scrcpy, "Pconfigure", "scrcpy-win64-v2.4", "scrcpy.exe")
+#
+#         # 选择正确的scrcpy工具相对路径
+#         scrcpy_exe_path = scrcpy_exe_path_64 if system_bits == '64bit' else scrcpy_exe_path_32
+#         logging.info(f"选择的scrcpy路径: {scrcpy_exe_path}")
+#
+#         # 指定 scrcpy.exe 的完整路径
+#         # scrcpy_exe_path = r'D:\Projectx\WebAppForAndroid\Pconfigure\scrcpy-win64-v2.4\scrcpy.exe'
+#
+#         # 执行 scrcpy 命令，指定设备 ID
+#         scrcpy_command = f'"{scrcpy_exe_path}" -s {device_id}'
+#         subprocess.Popen(scrcpy_command, shell=True)
+#
+#         return jsonify({'success': True})
+#     except Exception as e:
+#         return jsonify({'success': False, 'error': str(e)})
+#
+#
+# # 停用投屏互动模式
+# @app.route('/stop_scrcpy', methods=['POST'])
+# def stop_scrcpy():
+#     try:
+#         # 获取 scrcpy.exe 进程
+#         for proc in psutil.process_iter():
+#             if proc.name() == 'scrcpy.exe':
+#                 # 终止 scrcpy.exe 进程
+#                 proc.terminate()
+#                 return jsonify({'success': True})
+#
+#         # 如果没有找到 scrcpy.exe 进程，返回失败信息
+#         return jsonify({'success': False, 'error': 'scrcpy 进程未找到'})
+#     except Exception as e:
+#         return jsonify({'success': False, 'error': str(e)})
+
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 # 启用投屏互动模式
 @app.route('/scrcpy', methods=['POST'])
 def start_scrcpy_route():
@@ -186,6 +297,7 @@ def stop_scrcpy_route():
     return jsonify(result), status_code
 
 
+<<<<<<< HEAD
 # 获取转化aab证书变量路径
 @app.route('/get_certificates')
 def get_certificates():
@@ -366,6 +478,13 @@ def open_browser():
     # 使用延迟确保 Flask 应用程序完全启动
     time.sleep(1)
     webbrowser.open_new_tab(f'http://{use_local_ip}:5000')
+=======
+# 定义一个打开网页的函数
+def open_browser():
+    # 使用延迟确保 Flask 应用程序完全启动
+    time.sleep(1)
+    webbrowser.open_new_tab('http://localhost:5000')
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
 
 if __name__ == '__main__':
@@ -376,4 +495,8 @@ if __name__ == '__main__':
         app.browser_opened = True  # 标记浏览器已经打开
 
     # 运行 Flask 应用程序
+<<<<<<< HEAD
     app.run(host=use_local_ip, port=5000, debug=True, use_reloader=False)
+=======
+    app.run(host='0.0.0.0', port=5000, use_reloader=False)
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5

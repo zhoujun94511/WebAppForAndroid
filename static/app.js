@@ -8,7 +8,10 @@ function refreshDevices() {
         deviceSelect.empty();
 
         if (data.length === 0) {
+<<<<<<< HEAD
             deviceSelect.html('<option value="">未检测到设备</option>');
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             Swal.fire({
                 icon: 'warning',
                 title: '未检测到设备',
@@ -106,6 +109,7 @@ let installedApps = [];
 function getInstalledApps() {
     const getInstalledAppsButton = $('#get-installed-apps-button');
     getInstalledAppsButton.prop('disabled', true);
+<<<<<<< HEAD
     const deviceId = $('#device-select').val();
 
     if (!deviceId) {
@@ -118,6 +122,11 @@ function getInstalledApps() {
     getInstalledAppsButton.prop('disabled', false);
     return;
 }
+=======
+
+    const deviceId = $('#device-select').val();
+
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     $.post('/get_apps', { device_id: deviceId }, function(data) {
         if (data && data.length > 0) {
             installedApps = data; // 将获取到的应用包名列表存储到 installedApps 中
@@ -164,6 +173,7 @@ function searchApps(query) {
     updateAppSelect(filteredApps);
 }
 
+<<<<<<< HEAD
 // 搜索应用
 function searchApps() {
     const query = $('#app-search-input').val().toLowerCase();
@@ -197,6 +207,8 @@ $('#app-search-input').on('input', function() {
     searchApps();
 });
 
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 // 卸载应用程序
 function uninstallApp() {
     const uninstallAppButton = $('#uninstall-app-button');
@@ -208,8 +220,12 @@ function uninstallApp() {
     if (!deviceId || !packageName) {
         Swal.fire({
             icon: 'warning',
+<<<<<<< HEAD
             title: '必要信息缺失',
             text: '请选择所要卸载的设备ID和应用程序包名。',
+=======
+            title: '请选择要卸载的设备和应用程序。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             confirmButtonText: '确定'
         });
         uninstallAppButton.prop('disabled', false);
@@ -218,7 +234,11 @@ function uninstallApp() {
 
     // 二次确认
     Swal.fire({
+<<<<<<< HEAD
         title: `卸载应用`,
+=======
+        title: '确认',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         text: `您确定要卸载包名为 ${packageName} 的应用程序吗？`,
         icon: 'question',
         showCancelButton: true,
@@ -226,22 +246,33 @@ function uninstallApp() {
         cancelButtonText: '取消'
     }).then((result) => {
         if (result.isConfirmed) {
+<<<<<<< HEAD
             showLoading();
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             $.post('/uninstall_app', { device_id: deviceId, package_name: packageName })
                 .done(function(response) {
                     if (response.success) {
                         Swal.fire({
                             icon: 'success',
+<<<<<<< HEAD
                             title: '卸载成功',
                             text: '目标应用程序已卸载成功。',
+=======
+                            title: '应用程序卸载成功。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                             confirmButtonText: '确定'
                         });
                         getInstalledApps();
                     } else {
                         Swal.fire({
                             icon: 'error',
+<<<<<<< HEAD
                             title: '卸载失败',
                             text: '目标应用程序卸载失败。',
+=======
+                            title: '无法卸载应用',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                             text: response.error,
                             confirmButtonText: '确定'
                         });
@@ -250,14 +281,22 @@ function uninstallApp() {
                 .fail(function() {
                     Swal.fire({
                         icon: 'error',
+<<<<<<< HEAD
                         title: '卸载异常',
                         text: '目标应用程序无法卸载。',
+=======
+                        title: '错误',
+                        text: '无法卸载应用程序。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                         confirmButtonText: '确定'
                     });
                 })
                 .always(function() {
                     uninstallAppButton.prop('disabled', false);
+<<<<<<< HEAD
                     hideLoading();
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                 });
         } else {
             uninstallAppButton.prop('disabled', false);
@@ -269,6 +308,7 @@ function uninstallApp() {
 function installApk() {
     const installApkButton = $('#install-apk-button');
     installApkButton.prop('disabled', true);
+<<<<<<< HEAD
     const deviceId = $('#device-select').val();
     const apkFiles = $('#apk-file')[0].files;
 
@@ -277,11 +317,22 @@ function installApk() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+=======
+
+    const deviceId = $('#device-select').val();
+    const apkFile = $('#apk-file')[0].files[0];
+
+    if (!apkFile) {
+        Swal.fire({
+            icon: 'warning',
+            title: '请先选择一个 APK 文件。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             confirmButtonText: '确定'
         });
         installApkButton.prop('disabled', false);
         return;
     }
+<<<<<<< HEAD
     showLoading();
 
     if (apkFiles.length === 0) {
@@ -323,6 +374,22 @@ function installApk() {
     for (let i = 0; i < apkFiles.length; i++) {
         formData.append('apk_files', apkFiles[i]);
     }
+=======
+
+    if (!apkFile.name.toLowerCase().endsWith('.apk')) {
+        Swal.fire({
+            icon: 'warning',
+            title: '请选择一个 .apk 文件。',
+            confirmButtonText: '确定'
+        });
+        installApkButton.prop('disabled', false);
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('device_id', deviceId);
+    formData.append('apk_file', apkFile);
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
     $.ajax({
         url: '/install_apk',
@@ -331,7 +398,16 @@ function installApk() {
         processData: false,
         contentType: false,
         success: function(data) {
+<<<<<<< HEAD
             displayInstallResult(data);
+=======
+            Swal.fire({
+                icon: data.success ? 'success' : 'error',
+                title: data.success ? 'APK 安装成功' : 'APK 安装失败',
+                text: data.success ? '' : data.error,
+                confirmButtonText: '确定'
+            });
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         },
         error: function() {
             Swal.fire({
@@ -343,6 +419,7 @@ function installApk() {
         }
     }).always(function() {
         installApkButton.prop('disabled', false);
+<<<<<<< HEAD
         hideLoading();
     });
 }
@@ -407,16 +484,32 @@ function takeScreenshot() {
     }
     showLoading();
 
+=======
+    });
+}
+
+// 截图函数
+function takeScreenshot() {
+    const takeScreenshotButton = $('#take-screenshot-button');
+    takeScreenshotButton.prop('disabled', true);
+
+    const deviceId = $('#device-select').val();
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     $.post('/screenshot', { device_id: deviceId }, function(data) {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
                 title: '截图成功！',
+<<<<<<< HEAD
                 text: `文件名：${data.filename}`,
                 confirmButtonText: '确定'
             }).then(() => {
                 // 触发下载
                 window.location.href = '/download/' + encodeURIComponent(data.filename);
+=======
+                text: `路径：${data.path}`,
+                confirmButtonText: '确定'
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             });
         } else {
             Swal.fire({
@@ -428,6 +521,7 @@ function takeScreenshot() {
         }
     }).always(function() {
         takeScreenshotButton.prop('disabled', false);
+<<<<<<< HEAD
         hideLoading();
     });
 }
@@ -466,10 +560,35 @@ function recordScreen() {
     }
 
     $.post('/record_screen', { device_id: deviceId, duration: parsedDuration }, function(data) {
+=======
+    });
+}
+
+// 屏幕录制函数
+function recordScreen() {
+    const recordScreenButton = $('#record-screen-button');
+    recordScreenButton.prop('disabled', true);
+
+    const deviceId = $('#device-select').val();
+    const duration = prompt('请输入录屏时长（秒）：');
+
+    if (!duration) {
+        Swal.fire({
+            icon: 'warning',
+            title: '请输入录屏时长。',
+            confirmButtonText: '确定'
+        });
+        recordScreenButton.prop('disabled', false);
+        return;
+    }
+
+    $.post('/record_screen', { device_id: deviceId, duration: duration }, function(data) {
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
         if (data.success) {
             Swal.fire({
                 icon: 'success',
                 title: '录屏成功！',
+<<<<<<< HEAD
                 text: `文件名：${data.filename}`,
                 confirmButtonText: '确定',
                 showLoaderOnConfirm: true,
@@ -479,6 +598,10 @@ function recordScreen() {
                         setTimeout(resolve, 2000);
                     });
                 }
+=======
+                text: `路径：${data.path}`,
+                confirmButtonText: '确定'
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             });
         } else {
             Swal.fire({
@@ -490,7 +613,10 @@ function recordScreen() {
         }
     }).always(function() {
         recordScreenButton.prop('disabled', false);
+<<<<<<< HEAD
         hideLoading();
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     });
 }
 
@@ -501,6 +627,7 @@ function restartDevice() {
 
     const deviceId = $('#device-select').val();
 
+<<<<<<< HEAD
     if (!deviceId) {
         Swal.fire({
             icon: 'warning',
@@ -513,11 +640,17 @@ function restartDevice() {
     }
     showLoading();
 
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     $.post('/restart_device', { device_id: deviceId }, function(data) {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
+<<<<<<< HEAD
                 title: '设备重启成功。',
+=======
+                title: '设备已重启。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                 confirmButtonText: '确定'
             });
         } else {
@@ -530,7 +663,10 @@ function restartDevice() {
         }
     }).always(function() {
         restartDeviceButton.prop('disabled', false);
+<<<<<<< HEAD
     hideLoading();
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
     });
 }
 
@@ -544,8 +680,12 @@ function getCurrentAppInfo() {
     if (!deviceId) {
         Swal.fire({
             icon: 'warning',
+<<<<<<< HEAD
             title: '请选择设备',
             text: '请选择设备。',
+=======
+            title: '请选择设备。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             confirmButtonText: '确定'
         });
         getCurrentAppInfoButton.prop('disabled', false);
@@ -586,6 +726,7 @@ function enableWirelessDebugging() {
     enableWirelessDebuggingButton.prop('disabled', true);
 
     const deviceId = $('#device-select').val();
+<<<<<<< HEAD
     if (!deviceId) {
         Swal.fire({
             icon: 'warning',
@@ -596,12 +737,18 @@ function enableWirelessDebugging() {
         enableWirelessDebuggingButton.prop('disabled', false);
         return;
     }
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
     $.post('/enable_wireless_debugging', { device_id: deviceId }, function(data) {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
+<<<<<<< HEAD
                 title: '无线调试启用成功。',
+=======
+                title: '无线调试已启用。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                 confirmButtonText: '确定'
             });
         } else {
@@ -623,6 +770,7 @@ function disableWirelessDebugging() {
     disableWirelessDebuggingButton.prop('disabled', true);
 
     const deviceId = $('#device-select').val();
+<<<<<<< HEAD
     if (!deviceId) {
         Swal.fire({
             icon: 'warning',
@@ -633,6 +781,8 @@ function disableWirelessDebugging() {
         disableWirelessDebuggingButton.prop('disabled', false);
         return;
     }
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
 
     $.post('/disable_wireless_debugging', { device_id: deviceId }, function(data) {
         if (data.success) {
@@ -664,8 +814,12 @@ function startScrcpy() {
     if (!deviceId) {
         Swal.fire({
             icon: 'warning',
+<<<<<<< HEAD
             title: '请选择设备',
             text: '请选择设备。',
+=======
+            title: '请选择设备。',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
             confirmButtonText: '确定'
         });
         startScrcpyButton.prop('disabled', false);
@@ -682,7 +836,11 @@ function startScrcpy() {
         } else {
             Swal.fire({
                 icon: 'error',
+<<<<<<< HEAD
                 title: '启用投屏互动模式',
+=======
+                title: '启动 scrcpy 失败',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                 text: data.error,
                 confirmButtonText: '确定'
             });
@@ -707,7 +865,11 @@ function stopScrcpy() {
         } else {
             Swal.fire({
                 icon: 'error',
+<<<<<<< HEAD
                 title: '停用投屏互动模式失败',
+=======
+                title: '停止 scrcpy 失败',
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
                 text: data.error,
                 confirmButtonText: '确定'
             });
@@ -716,6 +878,7 @@ function stopScrcpy() {
         stopScrcpyButton.prop('disabled', false);
     });
 }
+<<<<<<< HEAD
 
 
 // 当整个文档准备好时，隐藏加载覆盖层，打印信息到控制台，并调用 fetchCertificates 函数获取证书列表
@@ -1247,3 +1410,5 @@ function stopApp() {
     });
 }
 
+=======
+>>>>>>> 9724e3b4f2c0436c579f209b5149c0bc2649c6d5
