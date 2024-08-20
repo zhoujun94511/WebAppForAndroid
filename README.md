@@ -17,9 +17,13 @@
 安全性：代码透明可见，对应服务布在本地，方便本地使用的同时，减少了遭受网络攻击的风险。
 
 
-功能概览：
+界面概览：
 
 ![Function_Preview](Function_Preview.png)
+
+功能概览：
+
+![Function_Preview_auto](Function_Preview_auto.gif)
 
 使用方法：
 
