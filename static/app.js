@@ -13,6 +13,7 @@ function refreshDevices() {
                 icon: 'warning',
                 title: '未检测到设备',
                 text: '请检查连接。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         } else {
@@ -23,6 +24,7 @@ function refreshDevices() {
             icon: 'error',
             title: '刷新设备列表时发生错误',
             text: '请检查网络连接。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
@@ -42,6 +44,7 @@ function getDeviceInfo() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         getDeviceInfoButton.prop('disabled', false);
@@ -55,9 +58,17 @@ function getDeviceInfo() {
                     icon: 'error',
                     title: '获取设备信息失败',
                     text: data.error,
+                    timer: 3000,
                     confirmButtonText: '确定'
                 });
             } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: '获取设备信息成功',
+                    text: '获取设备信息成功',
+                    timer: 3000,
+                    confirmButtonText: '确定'
+                });
                 displayDeviceInfo(data);
             }
         })
@@ -65,6 +76,7 @@ function getDeviceInfo() {
             Swal.fire({
                 icon: 'error',
                 title: '获取设备信息时发生错误',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         })
@@ -99,7 +111,7 @@ function displayDeviceInfo(deviceInfo) {
     deviceInfoDiv.append(htmlContent);
 }
 
-// 假设 installedApps 是一个数组，包含所有已安装的应用包名
+
 let installedApps = [];
 
 // 初始化已安装应用列表
@@ -113,6 +125,7 @@ function getInstalledApps() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     getInstalledAppsButton.prop('disabled', false);
@@ -126,6 +139,7 @@ function getInstalledApps() {
             Swal.fire({
                 icon: 'warning',
                 title: '未能获取到已安装的应用程序',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -133,6 +147,7 @@ function getInstalledApps() {
         Swal.fire({
             icon: 'error',
             title: '获取已安装的应用程序失败',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
@@ -177,6 +192,7 @@ function searchApps() {
             icon: 'error',
             title: '搜索应用失败',
             text: '请稍后重试',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     });
@@ -210,6 +226,7 @@ function uninstallApp() {
             icon: 'warning',
             title: '必要信息缺失',
             text: '请选择所要卸载的设备ID和应用程序包名。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         uninstallAppButton.prop('disabled', false);
@@ -234,6 +251,7 @@ function uninstallApp() {
                             icon: 'success',
                             title: '卸载成功',
                             text: '目标应用程序已卸载成功。',
+                            timer: 3000,
                             confirmButtonText: '确定'
                         });
                         getInstalledApps();
@@ -243,6 +261,7 @@ function uninstallApp() {
                             title: '卸载失败',
                             text: '目标应用程序卸载失败。',
                             text: response.error,
+                            timer: 3000,
                             confirmButtonText: '确定'
                         });
                     }
@@ -252,6 +271,7 @@ function uninstallApp() {
                         icon: 'error',
                         title: '卸载异常',
                         text: '目标应用程序无法卸载。',
+                        timer: 3000,
                         confirmButtonText: '确定'
                     });
                 })
@@ -277,6 +297,7 @@ function installApk() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         installApkButton.prop('disabled', false);
@@ -288,7 +309,7 @@ function installApk() {
         Swal.fire({
             icon: 'warning',
             title: 'APK文件缺失',
-            text: '请先选择至少一个APK文件。',
+            text: '请选择所要安装的APK格式文件。。',
             confirmButtonText: '确定'
         });
         installApkButton.prop('disabled', false);
@@ -309,6 +330,7 @@ function installApk() {
             icon: 'error',
             title: '安装失败',
             text: '请选择apk格式的文件进行安装',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         installApkButton.prop('disabled', false);
@@ -338,6 +360,7 @@ function installApk() {
                 icon: 'error',
                 title: '错误',
                 text: '无法安装 APK',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -400,6 +423,7 @@ function takeScreenshot() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         takeScreenshotButton.prop('disabled', false);
@@ -423,6 +447,7 @@ function takeScreenshot() {
                 icon: 'error',
                 title: '截图失败',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -443,6 +468,7 @@ function recordScreen() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         recordScreenButton.prop('disabled', false);
@@ -485,6 +511,7 @@ function recordScreen() {
                 icon: 'error',
                 title: '录屏失败',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -506,6 +533,7 @@ function restartDevice() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         restartDeviceButton.prop('disabled', false);
@@ -518,6 +546,7 @@ function restartDevice() {
             Swal.fire({
                 icon: 'success',
                 title: '设备重启成功。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         } else {
@@ -525,6 +554,7 @@ function restartDevice() {
                 icon: 'error',
                 title: '设备重启失败',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -546,6 +576,7 @@ function getCurrentAppInfo() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         getCurrentAppInfoButton.prop('disabled', false);
@@ -565,6 +596,7 @@ function getCurrentAppInfo() {
                 icon: 'error',
                 title: '获取当前应用信息失败',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -573,6 +605,7 @@ function getCurrentAppInfo() {
             icon: 'error',
             title: '错误',
             text: '无法获取当前应用程序信息！',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
@@ -591,6 +624,7 @@ function enableWirelessDebugging() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         enableWirelessDebuggingButton.prop('disabled', false);
@@ -602,6 +636,7 @@ function enableWirelessDebugging() {
             Swal.fire({
                 icon: 'success',
                 title: '无线调试启用成功。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         } else {
@@ -609,6 +644,7 @@ function enableWirelessDebugging() {
                 icon: 'error',
                 title: '启用无线调试失败。',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -628,6 +664,7 @@ function disableWirelessDebugging() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         disableWirelessDebuggingButton.prop('disabled', false);
@@ -639,6 +676,7 @@ function disableWirelessDebugging() {
             Swal.fire({
                 icon: 'success',
                 title: '无线调试已禁用。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         } else {
@@ -646,6 +684,7 @@ function disableWirelessDebugging() {
                 icon: 'error',
                 title: '禁用无线调试失败。',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -666,6 +705,7 @@ function startScrcpy() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         startScrcpyButton.prop('disabled', false);
@@ -676,7 +716,8 @@ function startScrcpy() {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
-                title: 'scrcpy 已启动。',
+                title: '互动投屏已启动。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         } else {
@@ -684,6 +725,7 @@ function startScrcpy() {
                 icon: 'error',
                 title: '启用投屏互动模式',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -701,7 +743,8 @@ function stopScrcpy() {
         if (data.success) {
             Swal.fire({
                 icon: 'success',
-                title: 'scrcpy 已停止。',
+                title: '互动投屏已停止。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         } else {
@@ -709,6 +752,7 @@ function stopScrcpy() {
                 icon: 'error',
                 title: '停用投屏互动模式失败',
                 text: data.error,
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -767,6 +811,7 @@ function uploadAab() {
             icon: 'warning',
             title: 'AAB文件缺失',
             text: '请上传所要转化的AAB格式文件。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -782,6 +827,7 @@ function uploadAab() {
             icon: 'error',
             title: '转换失败',
             text: '请选择AAB格式的文件进行转换',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         uploadButton.prop('disabled', false);
@@ -830,6 +876,7 @@ function handleFetchError(error) {
         icon: 'error',
         title: '上传失败',
         text: '无法连接服务器',
+        timer: 3000,
         confirmButtonText: '确定'
     });
     $('#upload-button').prop('disabled', false);
@@ -850,6 +897,7 @@ function convertAab(filename) {
                     icon: 'success',
                     title: '转化成功',
                     text: 'aab文件转换完成。',
+                    timer: 3000,
                     confirmButtonText: '确定'
                 });
             } else {
@@ -857,6 +905,7 @@ function convertAab(filename) {
                     icon: 'error',
                     title: '转化失败',
                     text: '无法转化aab文件。',
+                    timer: 3000,
                     confirmButtonText: '确定'
                 });
             }
@@ -869,6 +918,7 @@ function convertAab(filename) {
                 icon: 'error',
                 title: '转化失败',
                 text: '无法连接服务器。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
             $('#upload-button').prop('disabled', false);
@@ -913,6 +963,7 @@ async function getConvertedFiles() {
             icon: 'error',
             title: '获取文件列表失败',
             text: '无法连接服务器',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }
@@ -944,6 +995,7 @@ function downloadConvertedFile(filename) {
                 icon: 'error',
                 title: '下载失败',
                 text: '无法下载文件',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
         }
@@ -955,6 +1007,7 @@ function downloadConvertedFile(filename) {
             icon: 'error',
             title: '下载失败',
             text: '无法连接服务器',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         hideLoading();
@@ -988,6 +1041,7 @@ function generateSignature() {
         Swal.fire({
             icon: 'warning',
             title: '请选择证书',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1002,6 +1056,7 @@ function generateSignature() {
                     icon: 'success',
                     title: '签名生成成功',
                     text: `随机签名证书已生成成功，新生成证书的名称是：${response.certificateName}`,
+                    timer: 3000,
                     confirmButtonText: '确定'
                 }).then(() => {
                     fetchCertificates();
@@ -1011,6 +1066,7 @@ function generateSignature() {
                     icon: 'error',
                     title: '签名生成失败',
                     text: response.error || '无法生成签名。',
+                    timer: 3000,
                     confirmButtonText: '确定'
                 });
             }
@@ -1021,6 +1077,7 @@ function generateSignature() {
                 icon: 'error',
                 title: '签名生成失败',
                 text: '无法连接服务器。',
+                timer: 3000,
                 confirmButtonText: '确定'
             });
             hideLoading();
@@ -1035,6 +1092,7 @@ function simulateKeyPress(key) {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     return;
@@ -1046,12 +1104,14 @@ function simulateKeyPress(key) {
         Swal.fire({
             icon: 'success',
             title: '已选择目标按键',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).fail(function() {
         Swal.fire({
             icon: 'error',
             title: '目标按键选择失败',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
@@ -1070,6 +1130,7 @@ function openUrl() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1081,6 +1142,7 @@ function openUrl() {
             icon: 'warning',
             title: '请输入网址',
             text: '网址不能为空。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1094,6 +1156,7 @@ function openUrl() {
             icon: 'warning',
             title: '网址格式无效',
             text: '请输入有效的URL，例如：http://example.com。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1107,6 +1170,7 @@ function openUrl() {
             icon: 'success',
             title: '网页已打开',
             text: '请在目标测试机上进行查看',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         $('#url-input').val('');
@@ -1114,6 +1178,7 @@ function openUrl() {
         Swal.fire({
             icon: 'error',
             title: '打开网页失败',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
@@ -1130,8 +1195,9 @@ function checkDeviceIp() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
-        });
+    });
         return;
     }
 
@@ -1142,12 +1208,14 @@ function checkDeviceIp() {
             icon: 'success',
             title: '设备IP查看',
             text: '请在目标测试机上查看设备IP信息',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).fail(function() {
         Swal.fire({
             icon: 'error',
             title: '查看设备IP失败',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
@@ -1166,6 +1234,7 @@ function clearAppCache() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1177,6 +1246,7 @@ function clearAppCache() {
             icon: 'warning',
             title: '请选择应用包名',
             text: '请选择要清除缓存的应用包名。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1188,12 +1258,16 @@ function clearAppCache() {
         Swal.fire({
             icon: 'success',
             title: '已清除应用缓存',
+            text: '已清除应用缓存',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).fail(function() {
         Swal.fire({
             icon: 'error',
             title: '清除应用缓存失败',
+            text: '清除应用缓存失败',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
@@ -1212,6 +1286,7 @@ function stopApp() {
             icon: 'warning',
             title: '请选择设备',
             text: '请选择设备。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1223,6 +1298,7 @@ function stopApp() {
             icon: 'warning',
             title: '请选择应用包名',
             text: '请选择要停止运行的应用包名。',
+            timer: 3000,
             confirmButtonText: '确定'
         });
         return;
@@ -1234,12 +1310,16 @@ function stopApp() {
         Swal.fire({
             icon: 'success',
             title: '已停止应用运行',
+            text: '已停止应用运行',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).fail(function() {
         Swal.fire({
             icon: 'error',
             title: '停止应用运行失败',
+            text: '停止应用运行失败',
+            timer: 3000,
             confirmButtonText: '确定'
         });
     }).always(function() {
