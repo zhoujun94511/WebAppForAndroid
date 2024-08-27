@@ -93,7 +93,7 @@ ps：运行安装运行环境.bat会自动安装requirements.txt内所以依赖�
 6、Windows系统以exe文件运行
 
 - 在Pycharm终端使用pip install pyinstaller安装python需要的打包库；
-- 使用以下命令打包：pyinstaller --clean --onefile --name WebAppForAndroid --add-data "templates;templates" --add-data "static;static" --add-data "aab_conversion;aab_conversion" --add-data "screenshot_and_record;screenshot_and_record" --add-data "Pconfigure;Pconfigure" app.py
+- 使用以下命令打包：pyinstaller --clean --onefile --name WebAppForAndroidDebugger -i ".\static\wresource\wicon.ico" --add-data "templates;templates" --add-data "static;static" --add-data "aab_conversion;aab_conversion" --add-data "screenshot_and_record;screenshot_and_record" --add-data "Pconfigure;Pconfigure" app.py
 - 打包成功后在项目根目录找到dist文件夹里边的exe文件双击执行；
 
 7、Notice：
