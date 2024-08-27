@@ -26,44 +26,8 @@
 ![Function_Preview_auto](Function_Preview_auto.gif)
 
 项目结构：
-|-- app.py            # Flask应用程序的主文件
-|-- adb_utils.py      # 包含与 adbutils 交互的辅助函数
-|-- templates/        # 前端模板文件夹
-|   `-- index.html    # 前端模板文件
-|-- static/           # 静态资源文件夹
-	|-- wcss/           # 静态资源文件夹--css
-		|   `-- style.css     # 前端样式文件
-		|   `-- sweetalert2.min.css     # 前端样式文件		
-	|-- wjss/           # 静态资源文件夹--js
-		|   `-- app.js # 前端样式文件		
-		|   `-- jquery.min.js # 前端样式文件
-		|   `-- sweetalert2.all.min.js # 前端样式文件
-	|-- wresource/      # 静态资源文件夹--图片资源
-		|   `-- background.jpg # 前端样式文件		
-		|   `-- favicon.ico # 前端样式文件
-		|   `-- wicon.ico # 打包图标文
-|-- aab_conversion/       # aab转化资源文件夹
-	|-- certificate_folder/ # 证书资源文件夹
-		|--certificate_resources/ # 证书资源
-			|   `-- xxx.jks 
-		|--certificate_var/ # 证书配置信息资源
-			|   `-- certificate_var.json
-		|--generate_random_signature/ # 随机证书生成信息文件夹
-			|   `-- xxx_info.txt
-			|   `-- xxx.jks 
-	|-- download_folder/  # 用于下载生成后的xxx.apk和xxx.apks文件夹
-	|-- upload_folder/  # 用于暂存上传需要转化的aab文件
-	|-- bundletool.jar  # 用于转化的aab文件jar包
-|-- screenshot_and_record/       # 必要的依赖库文件
-	|   --mobile_record # 用于暂存录屏文件
-	|   --mobile_screenshot # 用于暂存截图文件
-|-- Pconfigure/       # 必要的依赖库文件
-	|   --scrcpy-win64-v2.6.1 # scrcpy-64位代码文件
-	|   --scrcpy-win32-v2.6.1 # scrcpy-32位代码文件
-|-- requirements.txt # 依赖库文件清单
-|-- 安装运行环境.bat # 依赖库文件安装脚本
-|-- Run.bat # 启动脚本
-|-- Run.sh # 启动脚本
+
+![Project_Structure](Project_Structure.png)
 
 使用方法：
 
