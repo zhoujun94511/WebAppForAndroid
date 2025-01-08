@@ -3,18 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<<<<<<< HEAD
-    <title>Android 调试工具</title>
-    <!-- 引入 Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-    <!-- 引入 FontAwesome 图标库 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- 引入样式文件 -->
-    <link rel="stylesheet" type="text/css" href="/static/style.css">
-    <!-- 引入 SweetAlert 的 CSS 和 JS 文件 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-=======
     <title>Web App For Android Debugger</title>
 
     <!-- 引入本地 Bootstrap 库 -->
@@ -28,16 +16,11 @@
 
     <!-- 引入本地 SweetAlert 库 -->
     <link rel="stylesheet" href="/static/wcss/sweetalert2.min.css">
->>>>>>> 99ca292 (新增功能和优化体验)
 </head>
 <body class="bg-light">
     <header class="container my-4">
         <div class="text-center">
-<<<<<<< HEAD
-            <h1>Android 调试工具</h1>
-=======
             <h1>Web App For Android Debugger</h1>
->>>>>>> 99ca292 (新增功能和优化体验)
         </div>
     </header>
 
@@ -53,10 +36,6 @@
                         <select id="device-select" class="form-select mb-2"></select>
                         <button id="refresh-devices-button" class="btn btn-primary w-100 mb-2" onclick="refreshDevices()">刷新设备</button>
                         <button id="check-ip-button" class="btn btn-primary w-100 mb-2" onclick="checkDeviceIp()">查看设备IP</button>
-<<<<<<< HEAD
-                        <input type="text" id="url-input" class="form-control mb-2" placeholder="请输入需要打开的目标网址">
-                        <button id="open-url-button" class="btn btn-success w-100 mb-2" onclick="openUrl()">打开网页</button>
-=======
                         <input type="text" id="url-input" class="form-control mb-2" placeholder="请输入目标网址-Http或Https类型">
                         <button id="open-url-button" class="btn btn-success w-100 mb-2" onclick="openUrl()">打开网页</button>
                         <textarea id="clipboard-text" class="form-control mb-2" placeholder="发送到设备的信息-常规文本"></textarea>
@@ -68,7 +47,6 @@
                                 <button id="get-from-device" class="btn btn-success w-100" onclick="getFromDevice()">从设备获取</button>
                             </div>
                         </div>
->>>>>>> 99ca292 (新增功能和优化体验)
                         <button id="get-device-info-button" class="btn btn-success w-100 mb-2" onclick="getDeviceInfo()">获取设备信息</button>
                         <div id="device-info" class="border p-3"></div>
                     </div>
@@ -102,11 +80,7 @@
                             </div>
                         </div>
                         <button id="install-apk-button" class="btn btn btn-success w-100" onclick="installApk()">单/多应用安装</button>
-<<<<<<< HEAD
-                        <button id="clear-app-cache-button" class="btn btn-warning w-100 mb-2" onclick="clearAppCache()">清除应用缓存</button>
-=======
                         <button id="clear-app-cache-button" class="btn btn-warning w-100 mb-2" onclick="clearAppCache()">清除应用缓存并启动</button>
->>>>>>> 99ca292 (新增功能和优化体验)
                         <button id="stop-app-button" class="btn btn btn-danger w-100 mb-2" onclick="stopApp()">停止应用运行</button>
                         <button id="get-current-app-info-button" class="btn btn-primary w-100 mb-2" onclick="getCurrentAppInfo()">获取当前应用信息</button>
                         <div id="current-app-info" class="border p-3 mb-3"></div>
@@ -126,11 +100,7 @@
                         <select id="certificate-select" class="form-select mb-2"></select>
                         <button id="upload-button" class="btn btn-primary w-100 mb-2" onclick="uploadAab()">上传AAB文件并转化</button>
                         <button id="generate-signature-button" class="btn btn-primary w-100 mb-3">生成随机签名</button>
-<<<<<<< HEAD
-                        <h5 class="text-center">转化后的文件列表</h5>
-=======
                         <h5 id="converted-file-list-heading" class="text-center" style="display: none;">转化后的文件列表</h5>
->>>>>>> 99ca292 (新增功能和优化体验)
                         <ul id="file-list"></ul>
                     </div>
                 </div>
@@ -144,19 +114,6 @@
                     </div>
                     <div class="card-body">
                         <div class="text-center rounded">
-<<<<<<< HEAD
-                            <button id="take-screenshot-button" class="btn btn-warning w-100 mb-2" onclick="takeScreenshot()">设备截图</button>
-                            <button id="record-screen-button" class="btn btn-primary w-100 mb-2" onclick="recordScreen()">设备录屏</button>
-                            <button id="restart-device-button" class="btn btn-danger w-100 mb-2" onclick="restartDevice()">设备重启</button>
-                            <button id="enable-wireless-debugging-button" class="btn btn-success w-100 mb-2" onclick="enableWirelessDebugging()">启用无线调试</button>
-                            <button id="disable-wireless-debugging-button" class="btn btn-danger w-100 mb-2" onclick="disableWirelessDebugging()">停用无线调试</button>
-                            <button id="simulate-power-button" class="btn btn-info w-100 mb-2" onclick="simulateKeyPress('power')">模拟锁屏/解锁</button>
-                            <button id="simulate-home-button" class="btn btn-primary w-100 mb-2" onclick="simulateKeyPress('home')">模拟HOME键</button>
-                            <button id="simulate-menu-button" class="btn btn-success w-100 mb-2" onclick="simulateKeyPress('menu')">模拟菜单键</button>
-                            <button id="simulate-back-button" class="btn btn-secondary w-100 mb-2" onclick="simulateKeyPress('back')">模拟返回键</button>
-                            <button id="start-scrcpy-button" class="btn btn-primary w-100 mb-2" onclick="startScrcpy()">启用投屏互动模式（本地）</button>
-                            <button id="stop-scrcpy-button" class="btn btn-danger w-100 mb-2" onclick="stopScrcpy()">停用投屏互动模式（本地）</button>
-=======
                         <div class="row g-2 mb-2">
                             <div class="col-6">
                                 <button id="take-screenshot-button" class="btn btn-warning w-100" onclick="takeScreenshot()">设备截图</button>
@@ -198,7 +155,6 @@
                                 <button id="stop-scrcpy-button" class="btn btn-danger w-100" onclick="stopScrcpy()">停用互动投屏</button>
                             </div>
                             </div>
->>>>>>> 99ca292 (新增功能和优化体验)
                         </div>
                     </div>
                 </div>
@@ -215,18 +171,6 @@
     <!-- CopyRight -->
     <footer class="footer mt-auto py-3 text-center">
         <div class="container">
-<<<<<<< HEAD
-            <span class="text-muted">&copy; 2024 WebAppForAndroid. All rights reserved.</span>
-        </div>
-    </footer>
-
-    <!-- 引入 jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <!-- 引入 Bootstrap JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.min.js"></script>
-    <!-- 引入JS 脚本 -->
-    <script src="/static/app.js"></script>
-=======
             <span class="text-muted">&copy; 2024-2025 Web App For Android Debugger. All rights reserved.</span>
         </div>
     </footer>
@@ -242,6 +186,5 @@
 
     <!-- 引入本地JS 脚本 -->
     <script src="/static/wjss/app.js"></script>
->>>>>>> 99ca292 (新增功能和优化体验)
 </body>
 </html>
