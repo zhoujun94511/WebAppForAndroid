@@ -47,7 +47,7 @@ ps：运行安装运行环境.bat会自动安装requirements.txt内所以依赖�
 2. 打开命令行工具（如终端、命令提示符）。
 3. 切换到项目所在的目录。
 4. 运行app.py文件来启动Flask服务器，可以通过文件路径+python app.py命令执行，也可使用Run.bat或Run.sh文件运行
-5.Windows系统电脑可以直接从release下载exe包执行；
+5. Windows系统电脑可以直接从release下载exe包执行；
 
 步骤3：访问Web界面
 1. 在启动Flask服务器后，它会在默认的Web浏览器中打开应用，或者您可以手动打开浏览器，访问http://localhost:5000。
