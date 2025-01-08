@@ -1,8 +1,11 @@
 import os
 import json
 import time
+<<<<<<< HEAD
 import click
 import flask.cli
+=======
+>>>>>>> 99ca292 (新增功能和优化体验)
 import datetime
 import logging
 import adb_utils
@@ -23,7 +26,11 @@ app.config['DEBUG'] = True
 
 # 设置全局日志配置
 logging.basicConfig(
+<<<<<<< HEAD
     level=logging.INFO,  # 设置全局日志级别为 INFO，可以更改为其他级别
+=======
+    level=logging.ERROR,  # 设置全局日志级别为 INFO，可以更改为其他级别
+>>>>>>> 99ca292 (新增功能和优化体验)
     format='%(asctime)s [%(levelname)s] %(message)s',  # 设置日志格式
     datefmt='%Y-%m-%d %H:%M:%S'  # 设置日期时间格式
 )
@@ -35,13 +42,20 @@ def on_first_request():
     if not get_windows():
         # 如果不是Windows系统，终止初始化
         abort(400, "抱歉，当前应用仅支持Windows系统！！！")
+<<<<<<< HEAD
     adb_utils.initialize_adb()
     # adb_utils.initialize_ws_scrcpy()
+=======
+>>>>>>> 99ca292 (新增功能和优化体验)
 
 
 # 主页视图
 @app.route('/')
 def index():
+<<<<<<< HEAD
+=======
+    adb_utils.initialize_adb()
+>>>>>>> 99ca292 (新增功能和优化体验)
     devices = adb_utils.get_devices()
     return render_template('index.html', devices=devices)
 
@@ -49,15 +63,22 @@ def index():
 # favicon定义
 @app.route('/favicon.ico')
 def favicon():
+<<<<<<< HEAD
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico')
+=======
+    return send_from_directory(os.path.join(app.root_path, 'static', 'wresource'), 'favicon.ico')
+>>>>>>> 99ca292 (新增功能和优化体验)
 
 
 # 刷新设备列表
 @app.route('/refresh', methods=['POST'])
 def refresh():
     devices = adb_utils.get_devices()
+<<<<<<< HEAD
     adb_utils.clear_aab_folders()
     adb_utils.clear_screenshot_and_record_folders()
+=======
+>>>>>>> 99ca292 (新增功能和优化体验)
     return jsonify(devices)
 
 
@@ -110,6 +131,10 @@ def install_apk():
 # 截图
 @app.route('/screenshot', methods=['POST'])
 def screenshot():
+<<<<<<< HEAD
+=======
+    adb_utils.clear_screenshot_and_record_folders()
+>>>>>>> 99ca292 (新增功能和优化体验)
     device_id = request.form.get('device_id')
     result = adb_utils.take_screenshot(device_id)
     return jsonify(result)
@@ -118,6 +143,10 @@ def screenshot():
 # 录屏
 @app.route('/record_screen', methods=['POST'])
 def record_screen():
+<<<<<<< HEAD
+=======
+    adb_utils.clear_screenshot_and_record_folders()
+>>>>>>> 99ca292 (新增功能和优化体验)
     device_id = request.form.get('device_id')
     duration = request.form.get('duration')
     result = adb_utils.record_screen(device_id, duration)
@@ -194,7 +223,10 @@ def stop_scrcpy_route():
 @app.route('/get_certificates')
 def get_certificates():
     certificate_var_file_path = adb_utils.get_certificate_var_file_path()
+<<<<<<< HEAD
 
+=======
+>>>>>>> 99ca292 (新增功能和优化体验)
     try:
         with open(certificate_var_file_path, 'r') as f:
             certificate_vars = json.load(f)
@@ -228,6 +260,10 @@ def get_certificate_info_route():
 # 上传aab文件的路由
 @app.route('/upload_aab', methods=['POST'])
 def upload_aab():
+<<<<<<< HEAD
+=======
+    adb_utils.clear_aab_folders()
+>>>>>>> 99ca292 (新增功能和优化体验)
     logging.info('接收到上传aab文件请求，正在处理中...')
     file = request.files['file']
     if file.filename == '':
@@ -361,6 +397,54 @@ def stop_app():
     return jsonify({"status": "success"})
 
 
+<<<<<<< HEAD
+=======
+# 检测clipper应用安装状态
+@app.route('/check_clipper', methods=['POST'])
+def check_clipper():
+    device_id = request.form.get('device_id')
+    if not device_id:
+        return jsonify({"status": "error", "message": "未选择设备"})
+
+    installed = adb_utils.check_clipper_installed(device_id)
+    if not installed:
+        success = adb_utils.install_clipper(device_id)
+        if not success:
+            return jsonify({"status": "error", "message": "Clipper安装失败"})
+
+    success = adb_utils.start_clipper(device_id)
+    if not success:
+        return jsonify({"status": "error", "message": "Clipper启动失败"})
+
+    return jsonify({"status": "success"})
+
+
+# 发送信息到设备粘贴板
+@app.route('/set_clipboard', methods=['POST'])
+def set_clipboard_route():
+    device_id = request.form.get('device_id')
+    text = request.form.get('text')
+    if not device_id or not text:
+        return jsonify({"status": "error", "message": "参数不完整"})
+
+    success = adb_utils.set_clipboard(device_id, text)
+    return jsonify({"status": "success" if success else "error"})
+
+
+# 从设备粘贴板获取信息
+@app.route('/get_clipboard', methods=['POST'])
+def get_clipboard_route():
+    device_id = request.form.get('device_id')
+    if not device_id:
+        return jsonify({"status": "error", "message": "未选择设备"})
+
+    text = adb_utils.get_clipboard(device_id)
+    if text is None:
+        return jsonify({"status": "error", "message": "获取剪贴板内容失败"})
+    return jsonify({"status": "success", "text": text})
+
+
+>>>>>>> 99ca292 (新增功能和优化体验)
 # 定义一个打开网页的函数
 use_local_ip = get_local_ip()
 
@@ -368,7 +452,11 @@ use_local_ip = get_local_ip()
 def open_browser():
     # 使用延迟确保 Flask 应用程序完全启动
     time.sleep(1)
+<<<<<<< HEAD
     webbrowser.open_new_tab(f'http://{use_local_ip}:5000')
+=======
+    webbrowser.open_new_tab(f'http://{use_local_ip}:5001')
+>>>>>>> 99ca292 (新增功能和优化体验)
 
 
 if __name__ == '__main__':
@@ -379,4 +467,8 @@ if __name__ == '__main__':
         app.browser_opened = True  # 标记浏览器已经打开
 
     # 运行 Flask 应用程序
+<<<<<<< HEAD
     app.run(host=use_local_ip, port=5000, debug=True, use_reloader=False)
+=======
+    app.run(host=use_local_ip, port=5001, debug=True, use_reloader=False)
+>>>>>>> 99ca292 (新增功能和优化体验)

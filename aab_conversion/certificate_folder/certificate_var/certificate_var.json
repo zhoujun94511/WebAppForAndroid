@@ -1,9 +1,9 @@
 [
-    {
-        "display_name": "A00000_randomkey_20240815144521",
-        "name": "randomkey_20240815144521.jks",
-        "keystore_password": "CLVilkn5N4MT",
-        "key_alias": "randomkey_20240815144521",
-        "key_password": "MbBXpX9Nc9iK"
-    }
+{
+	"display_name": "A00000_randomkey_20240815144521",
+	"name": "randomkey_20240815144521.jks",
+	"keystore_password": "CLVilkn5N4MT",
+	"key_alias": "randomkey_20240815144521",
+	"key_password": "MbBXpX9Nc9iK"
+}
 ]

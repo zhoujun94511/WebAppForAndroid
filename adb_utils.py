@@ -15,6 +15,7 @@ import platform
 import tempfile
 import subprocess
 
+<<<<<<< HEAD
 # 设置全局日志配置
 logging.basicConfig(
     level=logging.INFO,  # 设置全局日志级别为 INFO，可以更改为其他级别
@@ -23,6 +24,8 @@ logging.basicConfig(
 )
 
 
+=======
+>>>>>>> 99ca292 (新增功能和优化体验)
 #  创建截图和录屏存储目录。
 def screenshot_and_record_folders():
     # 获取项目根目录
@@ -90,7 +93,11 @@ def create_aab_converted_directories():
     os.makedirs(generate_random_signature_folder, exist_ok=True)
     logging.info(f'创建随机证书配置文件目录路径为: {generate_random_signature_folder}')
 
+<<<<<<< HEAD
     return aab_conversion_folder, download_folder, upload_folder, certificate_folder,certificate_resources_folder,certificate_var_folder,generate_random_signature_folder
+=======
+    return aab_conversion_folder, download_folder, upload_folder, certificate_folder, certificate_resources_folder, certificate_var_folder, generate_random_signature_folder
+>>>>>>> 99ca292 (新增功能和优化体验)
 
 
 # 清理aab生成使用过的文件夹
@@ -99,6 +106,11 @@ def clear_aab_folders():
     download_folder_clean = download_folder
     upload_folder_clean = upload_folder
 
+<<<<<<< HEAD
+=======
+    logging.info(f'正在清理aab文件下载与上传文件夹...')
+
+>>>>>>> 99ca292 (新增功能和优化体验)
     # 清理下载文件夹
     for filename in os.listdir(download_folder_clean):
         file_path = os.path.join(download_folder_clean, filename)
@@ -137,7 +149,10 @@ def clear_generate_random_signature_folder():
 
 # 清理截图与录屏使用过的文件夹
 def clear_screenshot_and_record_folders():
+<<<<<<< HEAD
 
+=======
+>>>>>>> 99ca292 (新增功能和优化体验)
     _, record_folder, screenshot_folder = screenshot_and_record_folders()
 
     logging.info(f'正在清理截图与录屏文件夹...')
@@ -163,6 +178,19 @@ def clear_screenshot_and_record_folders():
             logging.error(f"清理录屏文件夹 {file_path} 时出错: {e}")
 
 
+<<<<<<< HEAD
+=======
+#  定义clipper应用读取目录
+def clipper_folders_path():
+    # 获取项目根目录
+    clipper_apks_root_path = os.path.dirname(os.path.abspath(__file__))
+
+    # 定义应用目录路径
+    clipper_apks_path = os.path.join(clipper_apks_root_path, "static", "apks", "clipper_1.0.0.apk")
+    return clipper_apks_path
+
+
+>>>>>>> 99ca292 (新增功能和优化体验)
 # 获取系统类型
 def get_windows():
     return platform.system().lower() == 'windows'
@@ -205,8 +233,13 @@ def initialize_adb():
         logging.info(f"系统位数: {system_bits}")
 
         # 构建 scrcpy-win32-v2.4 和 scrcpy-win64-v2.4 的完整路径
+<<<<<<< HEAD
         adb_path_32 = os.path.join(script_dir_adb, "Pconfigure", "scrcpy-win32-v2.4", "adb")
         adb_path_64 = os.path.join(script_dir_adb, "Pconfigure", "scrcpy-win64-v2.4", "adb")
+=======
+        adb_path_32 = os.path.join(script_dir_adb, "Pconfigure", "scrcpy-win32-v2.6.1", "adb")
+        adb_path_64 = os.path.join(script_dir_adb, "Pconfigure", "scrcpy-win64-v2.6.1", "adb")
+>>>>>>> 99ca292 (新增功能和优化体验)
 
         # 选择正确的 adb 工具路径
         adb_path = adb_path_64 if system_bits == '64bit' else adb_path_32
@@ -432,7 +465,11 @@ def get_take_screenshot_and_record_files():
     return converted_files
 
 
+<<<<<<< HEAD
 # 重启设备
+=======
+# 使用adbutils重启设备
+>>>>>>> 99ca292 (新增功能和优化体验)
 def restart_device(device_id):
     try:
         logging.info(f'正在重启设备 {device_id}...')
@@ -445,6 +482,22 @@ def restart_device(device_id):
         return {'success': False, 'error': str(e)}
 
 
+<<<<<<< HEAD
+=======
+# # 使用adb重启设备
+# def restart_device(device_id):
+#     try:
+#         logging.info(f'正在重启设备 {device_id}...')
+#         # 使用 adb 命令重启设备
+#         subprocess.run(['adb', '-s', device_id, 'reboot'], check=True)
+#         logging.info(f'设备 {device_id} 重启成功')
+#         return {'success': True}
+#     except subprocess.CalledProcessError as e:
+#         logging.error(f'重启设备失败: {e}')
+#         return {'success': False, 'error': str(e)}
+
+
+>>>>>>> 99ca292 (新增功能和优化体验)
 # 获取设备信息
 def get_new_device_info(device_id):
     try:
@@ -718,9 +771,15 @@ def get_scrcpy_executable_path():
     system_bits = platform.architecture()[0]
     base_path = os.path.join(script_dir, "Pconfigure")
     if system_bits == '64bit':
+<<<<<<< HEAD
         return os.path.join(base_path, "scrcpy-win64-v2.4", "scrcpy.exe")
     else:
         return os.path.join(base_path, "scrcpy-win32-v2.4", "scrcpy.exe")
+=======
+        return os.path.join(base_path, "scrcpy-win64-v2.6.1", "scrcpy.exe")
+    else:
+        return os.path.join(base_path, "scrcpy-win32-v2.6.1", "scrcpy.exe")
+>>>>>>> 99ca292 (新增功能和优化体验)
 
 
 # 启用互动投屏功能
@@ -991,9 +1050,15 @@ def simulate_key_press(device_id, key):
     try:
         device = adbutils.adb.device(device_id)
         device.shell(f"input keyevent {key_codes[key]}")
+<<<<<<< HEAD
         logging.info(f"已模拟按下 {key} 键")
     except Exception as e:
         logging.error(f"模拟按键失败: {e}")
+=======
+        logging.info(f"已操作{key}键")
+    except Exception as e:
+        logging.error(f"操作失败: {e}")
+>>>>>>> 99ca292 (新增功能和优化体验)
 
 
 # 打开网址
@@ -1016,12 +1081,22 @@ def check_device_ip(device_id):
         logging.error(f"查看设备 IP 失败: {e}")
 
 
+<<<<<<< HEAD
 # 清理应用缓存
 def clear_app_cache(device_id, package_name):
     try:
         device = adbutils.adb.device(device_id)
         device.shell(f"pm clear {package_name}")
         logging.info(f"已清除应用 {package_name} 的缓存")
+=======
+# 清理应用缓存并启动
+def clear_app_cache(device_id, package_name):
+    try:
+        device = adbutils.adb.device(device_id)
+        # 执行清除应用缓存的命令并启动应用
+        device.shell(f"pm clear {package_name} && monkey -p {package_name} -c android.intent.category.LAUNCHER 1")
+        logging.info(f"已清除应用 {package_name} 的缓存并启动应用")
+>>>>>>> 99ca292 (新增功能和优化体验)
     except Exception as e:
         logging.error(f"清除应用缓存失败: {e}")
 
@@ -1034,3 +1109,71 @@ def stop_app(device_id, package_name):
         logging.info(f"已停止应用 {package_name} 的运行")
     except Exception as e:
         logging.error(f"停止应用运行失败: {e}")
+<<<<<<< HEAD
+=======
+
+
+# 检查设备是否安装了Clipper应用
+def check_clipper_installed(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        result = device.shell('pm list packages -3 | grep com.utils.clipper')
+        return bool(result.strip())
+    except Exception as e:
+        logging.error(f"检查Clipper安装状态失败: {e}")
+        return False
+
+
+# 安装Clipper应用
+def install_clipper(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        apk_path = clipper_folders_path()
+        device.install(apk_path)
+        logging.info("Clipper应用安装成功")
+        return True
+    except Exception as e:
+        logging.error(f"安装Clipper应用失败: {e}")
+        return False
+
+
+# 启动Clipper应用
+def start_clipper(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        device.shell('am start -n com.utils.clipper/com.utils.clipper.Main')
+        return True
+    except Exception as e:
+        logging.error(f"启动Clipper应用失败: {e}")
+        return False
+
+
+# 发送文本到设备剪贴板
+def set_clipboard(device_id, text):
+    try:
+        device = adbutils.adb.device(device_id)
+        result = device.shell(f'am broadcast -a clipper.set -n com.utils.clipper/.ClipperReceiver -e text "{text}"')
+        if 'result=-1' in result and 'Text is copied into clipboard' in result:
+            return True
+        return False
+    except Exception as e:
+        logging.error(f"设置剪贴板内容失败: {e}")
+        return False
+
+
+# 获取设备剪贴板内容
+def get_clipboard(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        result = device.shell('am broadcast -a clipper.get -n com.utils.clipper/.ClipperReceiver')
+        if 'result=-1' in result and 'data=' in result:
+            # 提取data字段中的内容
+            import re
+            match = re.search(r'data="([^"]*)"', result)
+            if match:
+                return match.group(1)
+        return None
+    except Exception as e:
+        logging.error(f"获取剪贴板内容失败: {e}")
+        return None
+>>>>>>> 99ca292 (新增功能和优化体验)
