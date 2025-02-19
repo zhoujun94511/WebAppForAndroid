@@ -1223,7 +1223,7 @@ function checkDeviceIp() {
     });
 }
 
-// 清除应用缓存
+// 清除应用缓存并启动
 function clearAppCache() {
     const deviceId = $('#device-select').val();
     const packageName = $('#app-select').val();
@@ -1245,7 +1245,7 @@ function clearAppCache() {
         Swal.fire({
             icon: 'warning',
             title: '请选择应用包名',
-            text: '请选择要清除缓存的应用包名。',
+            text: '请选择要清除缓存并启动的应用包名。',
             timer: 3000,
             confirmButtonText: '确定'
         });
@@ -1257,16 +1257,16 @@ function clearAppCache() {
     $.post('/clear_app_cache', { device_id: deviceId, package_name: packageName }, function(data) {
         Swal.fire({
             icon: 'success',
-            title: '已清除应用缓存',
-            text: '已清除应用缓存',
+            title: '已清除应用缓存并启动',
+            text: '已清除应用缓存并启动',
             timer: 1500,
             confirmButtonText: '确定'
         });
     }).fail(function() {
         Swal.fire({
             icon: 'error',
-            title: '清除应用缓存失败',
-            text: '清除应用缓存失败',
+            title: '清除应用缓存并启动失败',
+            text: '清除应用缓存并启动失败',
             timer: 1500,
             confirmButtonText: '确定'
         });
@@ -1372,128 +1372,136 @@ function initClipperApp() {
 async function sendToDevice() {
     const deviceId = $('#device-select').val();
     const text = $('#clipboard-text').val().trim();
-    if (!deviceId) {
-        Swal.fire({
-            icon: 'warning',
-            title: '请选择设备',
-            text: '请先选择一个设备',
-            timer: 3000,
-            confirmButtonText: '确定'
-        });
-        return false;
-    }
 
     if (!text) {
         Swal.fire({
             icon: 'warning',
             title: '请输入文本',
             text: '请输入要发送的文本内容',
-            timer: 3000,
-            confirmButtonText: '确定'
+            timer: 3000
         });
         return;
     }
 
-    showLoading();
+    try {
+        showLoading();
+        if (!await initClipperApp()) {
+            return;
+        }
 
-    if (!await initClipperApp()) {
-        hideLoading();
-        return;
-    }
+        // 发送文本到剪贴板
+        const response = await $.post('/set_clipboard', {
+            device_id: deviceId,
+            text: text
+        });
 
-    $.post('/set_clipboard', {
-        device_id: deviceId,
-        text: text
-    })
-    .done(function(response) {
         if (response.status === 'success') {
             Swal.fire({
                 icon: 'success',
                 title: '发送成功',
                 text: '文本已成功发送到设备',
-                timer: 1500,
-                confirmButtonText: '确定'
+                timer: 1500
             });
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: '发送失败',
-                text: response.message || '无法发送文本到设备',
-                timer: 1500,
-                confirmButtonText: '确定'
-            });
+            throw new Error(response.message || '发送失败');
         }
-    })
-    .fail(function() {
+    } catch (error) {
         Swal.fire({
             icon: 'error',
             title: '发送失败',
-            text: '请求失败，请检查网络连接',
-            timer: 1500,
-            confirmButtonText: '确定'
+            text: error.message || '请求失败，请检查连接',
+            showCancelButton: true,  // 显示取消按钮
+            confirmButtonText: '重试',
+            cancelButtonText: '退出',  // 设置退出按钮
+        }).then((result) => {
+            if (result.isConfirmed) {
+                sendToDevice();  // 允许用户重试
+            } else if (result.isDismissed) {
+                // 用户选择了退出，关闭提示框
+                console.log('用户选择退出');
+            }
         });
-    })
-    .always(function() {
+    } finally {
         hideLoading();
-    });
+    }
 }
 
-// 获取设备粘贴板信息
+// 从设备粘贴板获取信息
 async function getFromDevice() {
     const deviceId = $('#device-select').val();
-        if (!deviceId) {
-        Swal.fire({
-            icon: 'warning',
-            title: '请选择设备',
-            text: '请先选择一个设备',
-            timer: 3000,
-            confirmButtonText: '确定'
-        });
-        return false;
-    }
-    showLoading();
 
-    if (!await initClipperApp()) {
-        hideLoading();
-        return;
-    }
+    try {
+        showLoading();
+        if (!await initClipperApp()) {
+            return;
+        }
 
-    $.post('/get_clipboard', { device_id: deviceId })
-    .done(function(response) {
-        if (response.status === 'success') {
+        const response = await $.post('/get_clipboard', { device_id: deviceId });
+
+        if (response.status === 'success' && response.text != null) {
             $('#clipboard-text').val(response.text);
             Swal.fire({
                 icon: 'success',
                 title: '获取成功',
                 text: '已获取设备剪贴板内容',
-                timer: 1500,
-                confirmButtonText: '确定'
+                timer: 1500
             });
         } else {
-            Swal.fire({
-                icon: 'error',
-                title: '获取失败',
-                text: response.message || '无法获取设备剪贴板内容',
-                timer: 1500,
-                confirmButtonText: '确定'
-            });
+            throw new Error(response.message || '获取剪贴板内容失败');
         }
-    })
-    .fail(function() {
+    } catch (error) {
         Swal.fire({
             icon: 'error',
             title: '获取失败',
-            text: '请求失败，请检查网络连接',
+            text: error.message || '请求失败，请检查连接',
+            showCancelButton: true,  // 显示取消按钮
+            confirmButtonText: '重试',
+            cancelButtonText: '退出',  // 设置退出按钮
+        }).then((result) => {
+            if (result.isConfirmed) {
+                getFromDevice();  // 允许用户重试
+            } else if (result.isDismissed) {
+                // 用户选择了退出，关闭提示框
+                console.log('用户选择退出');
+            }
+        });
+    } finally {
+        hideLoading();
+    }
+}
+
+// 打开语言设置
+function openLocaleSettings() {
+    const deviceId = $('#device-select').val();
+    if (!deviceId) {
+        Swal.fire({
+            icon: 'warning',
+            title: '请选择设备',
+            text: '请选择设备。',
+            timer: 3000,
+            confirmButtonText: '确定'
+        });
+        return;
+    }
+
+    showLoading(); // 显示加载动画
+
+    $.post('/open_locale_settings', { device_id: deviceId }, function (data) {
+        Swal.fire({
+            icon: 'success',
+            title: '打开语言设置',
+            text: '已在设备上打开语言设置界面。',
             timer: 1500,
             confirmButtonText: '确定'
         });
-    })
-    .always(function() {
-        hideLoading();
+    }).fail(function () {
+        Swal.fire({
+            icon: 'error',
+            title: '打开语言设置界面失败',
+            timer: 1500,
+            confirmButtonText: '确定'
+        });
+    }).always(function () {
+        hideLoading(); // 隐藏加载动画
     });
 }
-
-
-
-
-
