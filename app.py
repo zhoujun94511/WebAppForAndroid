@@ -284,9 +284,10 @@ def download_file(filename):
         screenshot_and_record_folder, record_folder, screenshot_folder = adb_utils.screenshot_and_record_folders()
 
         if filename.startswith('screenshot_'):
-            file_path = os.path.join(screenshot_folder, filename)
+            # file_path = os.path.join(screenshot_folder, filename)
+            file_path = str(os.path.join(screenshot_folder, filename))
         else:  # filename.startswith('screen_record_')
-            file_path = os.path.join(record_folder, filename)
+            file_path = str(os.path.join(record_folder, filename))
 
     else:
         # 处理 aab 文件下载
@@ -337,8 +338,12 @@ def open_url():
 @app.route('/check_device_ip', methods=['POST'])
 def check_device_ip():
     device_id = request.form.get('device_id')
-    adb_utils.check_device_ip(device_id)
-    return jsonify({"status": "success"})
+    try:
+        adb_utils.check_device_ip(device_id)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        logging.error(f"查看设备 IP 失败: {e}")
+        return jsonify({"status": "error", "message":"查看设备 IP 失败"})
 
 
 # 清理应用缓存
@@ -358,8 +363,6 @@ def stop_app():
     adb_utils.stop_app(device_id, package_name)
     return jsonify({"status": "success"})
 
-
-
 # 检测clipper应用安装状态
 @app.route('/check_clipper', methods=['POST'])
 def check_clipper():
@@ -367,18 +370,21 @@ def check_clipper():
     if not device_id:
         return jsonify({"status": "error", "message": "未选择设备"})
 
+    # 检查是否已安装
     installed = adb_utils.check_clipper_installed(device_id)
     if not installed:
         success = adb_utils.install_clipper(device_id)
         if not success:
             return jsonify({"status": "error", "message": "Clipper安装失败"})
+        time.sleep(1)  # 等待安装完成
 
-    success = adb_utils.start_clipper(device_id)
-    if not success:
-        return jsonify({"status": "error", "message": "Clipper启动失败"})
+    # 检查是否正在运行，如果没有运行则启动
+    if not adb_utils.is_clipper_running(device_id):
+        success = adb_utils.start_clipper(device_id)
+        if not success:
+            return jsonify({"status": "error", "message": "Clipper启动失败"})
 
     return jsonify({"status": "success"})
-
 
 # 发送信息到设备粘贴板
 @app.route('/set_clipboard', methods=['POST'])
@@ -388,9 +394,12 @@ def set_clipboard_route():
     if not device_id or not text:
         return jsonify({"status": "error", "message": "参数不完整"})
 
+    # 检查应用状态并设置剪贴板
     success = adb_utils.set_clipboard(device_id, text)
-    return jsonify({"status": "success" if success else "error"})
+    if not success:
+        return jsonify({"status": "error", "message": "设置剪贴板失败"})
 
+    return jsonify({"status": "success"})
 
 # 从设备粘贴板获取信息
 @app.route('/get_clipboard', methods=['POST'])
@@ -399,19 +408,30 @@ def get_clipboard_route():
     if not device_id:
         return jsonify({"status": "error", "message": "未选择设备"})
 
+    # 获取剪贴板内容
     text = adb_utils.get_clipboard(device_id)
     if text is None:
         return jsonify({"status": "error", "message": "获取剪贴板内容失败"})
+
     return jsonify({"status": "success", "text": text})
+
+# 打开语言设置界面
+@app.route('/open_locale_settings', methods=['POST'])
+def open_locale_settings():
+    device_id = request.form.get('device_id')
+    try:
+        adb_utils.open_locale_settings(device_id)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        logging.error(f"打开语言设置失败: {e}")
+        return jsonify({"status": "error", "message": "打开语言设置失败"})
 
 # 定义一个打开网页的函数
 use_local_ip = get_local_ip()
-
-
 def open_browser():
-    # 使用延迟确保 Flask 应用程序完全启动
-    time.sleep(1)
-    webbrowser.open_new_tab(f'http://{use_local_ip}:5001')
+     # 使用延迟确保 Flask 应用程序完全启动
+     time.sleep(1)
+     webbrowser.open_new_tab(f'http://{use_local_ip}:5001')
 
 
 if __name__ == '__main__':
