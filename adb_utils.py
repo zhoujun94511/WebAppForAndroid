@@ -1038,7 +1038,6 @@ def stop_app(device_id, package_name):
     except Exception as e:
         logging.error(f"停止应用运行失败: {e}")
 
-
 # 检查设备是否安装了Clipper应用
 def check_clipper_installed(device_id):
     try:
@@ -1062,26 +1061,72 @@ def install_clipper(device_id):
         logging.error(f"安装Clipper应用失败: {e}")
         return False
 
-
 # 启动Clipper应用
 def start_clipper(device_id):
     try:
         device = adbutils.adb.device(device_id)
+
+        # 先检查应用是否已安装
+        if not check_clipper_installed(device_id):
+            logging.error("Clipper应用未安装")
+            return False
+
+        # 启动应用
         device.shell('am start -n com.utils.clipper/com.utils.clipper.Main')
-        return True
+
+        # 等待应用启动并初始化，最多重试5次
+        for i in range(3):
+            time.sleep(1)  # 每次检查间隔1秒
+            if is_clipper_running(device_id):
+                logging.info(f"Clipper应用成功启动 (尝试{i + 1}次)")
+                # 额外等待一秒确保应用完全初始化
+                time.sleep(1)
+                return True
+
+        logging.error("Clipper应用启动超时")
+        return False
     except Exception as e:
         logging.error(f"启动Clipper应用失败: {e}")
         return False
 
+# 检查Clipper运行状态
+def is_clipper_running(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        result = device.shell('dumpsys window | grep mCurrentFocus')
+        running = 'com.utils.clipper' in result
+        if running:
+            logging.info("Clipper应用在前台运行")
+        else:
+            logging.info("Clipper应用未在前台运行")
+            device.shell('am start -n com.utils.clipper/com.utils.clipper.Main')
+            time.sleep(1)  # 等待应用完全启动
+            return running
+        return running
+    except Exception as e:
+        logging.error(f"检查Clipper运行状态失败: {e}")
+        return False
 
 # 发送文本到设备剪贴板
 def set_clipboard(device_id, text):
     try:
+        # 确保应用正在运行
+        if not is_clipper_running(device_id):
+            logging.info("Clipper未运行，尝试启动...")
+            if not start_clipper(device_id):
+                logging.error("无法启动Clipper应用")
+                return False
+            time.sleep(1)
         device = adbutils.adb.device(device_id)
         result = device.shell(f'am broadcast -a clipper.set -n com.utils.clipper/.ClipperReceiver -e text "{text}"')
-        if 'result=-1' in result and 'Text is copied into clipboard' in result:
-            return True
-        return False
+        success = 'result=-1' in result and 'Text is copied into clipboard' in result
+
+        if success:
+            logging.info("成功设置剪贴板内容")
+        else:
+            logging.error("设置剪贴板内容失败")
+
+        return success
     except Exception as e:
         logging.error(f"设置剪贴板内容失败: {e}")
         return False
@@ -1090,15 +1135,40 @@ def set_clipboard(device_id, text):
 # 获取设备剪贴板内容
 def get_clipboard(device_id):
     try:
+        # 确保应用正在运行
+        if not is_clipper_running(device_id):
+            logging.info("Clipper未运行，尝试启动...")
+            if not start_clipper(device_id):
+                logging.error("无法启动Clipper应用")
+                return None
+            time.sleep(1)  # 等待应用初始化
+
         device = adbutils.adb.device(device_id)
         result = device.shell('am broadcast -a clipper.get -n com.utils.clipper/.ClipperReceiver')
-        if 'result=-1' in result and 'data=' in result:
-            # 提取data字段中的内容
-            import re
-            match = re.search(r'data="([^"]*)"', result)
-            if match:
-                return match.group(1)
-        return None
+
+        # 检查广播结果
+        if 'result=-1' not in result:
+            logging.error("获取剪贴板广播失败")
+            return None
+
+        # 提取剪贴板内容
+        match = re.search(r'data="([^"]*)"', result)
+        if match:
+            clipboard_text = match.group(1)
+            logging.info(f"成功获取剪贴板内容: {clipboard_text[:50]}...")  # 只记录前50个字符
+            return clipboard_text
+        else:
+            logging.error("未找到剪贴板内容")
+            return None
+
     except Exception as e:
         logging.error(f"获取剪贴板内容失败: {e}")
         return None
+
+def open_locale_settings(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        device.shell('am start -a android.settings.LOCALE_SETTINGS')
+        logging.info(f"已在设备 {device_id} 上打开语言设置界面")
+    except Exception as e:
+        logging.error(f"打开语言设置界面失败: {e}")
