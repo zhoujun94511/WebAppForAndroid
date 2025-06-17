@@ -1,3 +1,8 @@
+// 页面加载后自动刷新设备列表
+$(document).ready(function() {
+    refreshDevices();
+});
+
 // 刷新设备列表
 function refreshDevices() {
     const refreshDevicesButton = $('#refresh-devices-button');
@@ -285,7 +290,7 @@ function uninstallApp() {
     });
 }
 
-// 安装 APK 文件
+// 安装 APK / XAPK 文件
 function installApk() {
     const installApkButton = $('#install-apk-button');
     installApkButton.prop('disabled', true);
@@ -303,23 +308,22 @@ function installApk() {
         installApkButton.prop('disabled', false);
         return;
     }
-    showLoading();
 
     if (apkFiles.length === 0) {
         Swal.fire({
             icon: 'warning',
-            title: 'APK文件缺失',
-            text: '请选择所要安装的APK格式文件。。',
+            title: '文件缺失',
+            text: '请选择需要安装的APK或XAPK格式的文件。',
             confirmButtonText: '确定'
         });
         installApkButton.prop('disabled', false);
-        hideLoading();
         return;
     }
 
     let invalidFile = false;
     for (let i = 0; i < apkFiles.length; i++) {
-        if (!apkFiles[i].name.endsWith('.apk')) {
+        const fileName = apkFiles[i].name.toLowerCase();
+        if (!fileName.endsWith('.apk') && !fileName.endsWith('.xapk')) {
             invalidFile = true;
             break;
         }
@@ -328,13 +332,12 @@ function installApk() {
     if (invalidFile) {
         Swal.fire({
             icon: 'error',
-            title: '安装失败',
-            text: '请选择apk格式的文件进行安装',
+            title: '文件格式错误',
+            text: '请选择.apk或.xapk文件进行安装。',
             timer: 3000,
             confirmButtonText: '确定'
         });
         installApkButton.prop('disabled', false);
-        hideLoading();
         return;
     }
 
@@ -355,11 +358,11 @@ function installApk() {
         success: function(data) {
             displayInstallResult(data);
         },
-        error: function() {
+        error: function(xhr) {
             Swal.fire({
                 icon: 'error',
-                title: '错误',
-                text: '无法安装 APK',
+                title: '安装失败',
+                text: xhr.responseText || '无法安装应用文件。',
                 timer: 3000,
                 confirmButtonText: '确定'
             });
@@ -370,7 +373,6 @@ function installApk() {
     });
 }
 
-
 // 显示安装结果
 function displayInstallResult(results) {
     const failedList = $('#failed-list');
@@ -378,9 +380,13 @@ function displayInstallResult(results) {
     failedList.empty();
     successList.empty();
 
+    let successCount = 0;
+    let failedCount = 0;
+
     results.forEach(result => {
         if (result.success) {
             successList.append(`<li>${result.filename}</li>`);
+            successCount++;
         } else {
             failedList.append(`
                 <li>
@@ -388,25 +394,31 @@ function displayInstallResult(results) {
                     <div class="error-message">${result.error}</div>
                 </li>
             `);
+            failedCount++;
         }
     });
 
-    if (failedList.children().length === 0) {
-        $('#failed-installs').hide();
-    } else {
-        $('#failed-installs').show();
-    }
+    // 仅在有失败时显示失败区域
+    $('#failed-installs').toggle(failedCount > 0);
+    $('#successful-installs').toggle(successCount > 0);
 
-    if (successList.children().length === 0) {
-        $('#successful-installs').hide();
+    if (failedCount > 0) {
+        // 只有部分失败时才弹窗
+        Swal.fire({
+            icon: 'warning',
+            title: '部分文件安装失败',
+            text: `成功: ${successCount}，失败: ${failedCount}`,
+            confirmButtonText: '查看详情'
+        }).then(() => {
+            $('#install-result').show();  // 失败时显示模态框
+        });
     } else {
-        $('#successful-installs').show();
+        // 完全成功时直接显示模态框，不弹出 Swal.fire
+        $('#install-result').show();
     }
-
-    $('#install-result').show();
 }
 
-// 添加关闭结果模态框的事件处理
+// 关闭安装结果模态框
 $('#close-result').on('click', function() {
     $('#install-result').hide();
 });
@@ -1257,8 +1269,8 @@ function clearAppCache() {
     $.post('/clear_app_cache', { device_id: deviceId, package_name: packageName }, function(data) {
         Swal.fire({
             icon: 'success',
-            title: '已清除应用缓存并启动',
-            text: '已清除应用缓存并启动',
+            title: '清除应用缓存并启动成功',
+            text: `已成功清理${packageName}应用的缓存并重新启动`,
             timer: 1500,
             confirmButtonText: '确定'
         });
@@ -1266,7 +1278,7 @@ function clearAppCache() {
         Swal.fire({
             icon: 'error',
             title: '清除应用缓存并启动失败',
-            text: '清除应用缓存并启动失败',
+            text: `未能成功清理${packageName}应用的缓存并重新启动`,
             timer: 1500,
             confirmButtonText: '确定'
         });
@@ -1310,7 +1322,7 @@ function stopApp() {
         Swal.fire({
             icon: 'success',
             title: '已停止应用运行',
-            text: '已停止应用运行',
+            text: `已成功停止${packageName}应用的运行`,
             timer: 1500,
             confirmButtonText: '确定'
         });
@@ -1318,7 +1330,7 @@ function stopApp() {
         Swal.fire({
             icon: 'error',
             title: '停止应用运行失败',
-            text: '停止应用运行失败',
+            text: `停止${packageName}应用运行失败`,
             timer: 1500,
             confirmButtonText: '确定'
         });
@@ -1373,12 +1385,23 @@ async function sendToDevice() {
     const deviceId = $('#device-select').val();
     const text = $('#clipboard-text').val().trim();
 
+    if (!deviceId) {
+    Swal.fire({
+        icon: 'warning',
+        title: '请选择设备',
+        text: '请选择设备。',
+        timer: 3000,
+        confirmButtonText: '确定'
+    });
+    return;
+    }
+
     if (!text) {
         Swal.fire({
             icon: 'warning',
             title: '请输入文本',
             text: '请输入要发送的文本内容',
-            timer: 3000
+            timer: 3000,
         });
         return;
     }
@@ -1470,7 +1493,7 @@ async function getFromDevice() {
     }
 }
 
-// 打开语言设置
+// 打开语言设置界面
 function openLocaleSettings() {
     const deviceId = $('#device-select').val();
     if (!deviceId) {
@@ -1503,5 +1526,78 @@ function openLocaleSettings() {
         });
     }).always(function () {
         hideLoading(); // 隐藏加载动画
+    });
+}
+
+// 启用Xtest
+function startXtest() {
+    const deviceId = $('#device-select').val();
+    if (!deviceId) {
+        Swal.fire({
+            icon: 'warning',
+            title: '请选择设备',
+            text: '请选择设备。',
+            timer: 3000,
+            confirmButtonText: '确定'
+        });
+        return;
+    }
+
+    showLoading();
+
+    $.post('/start_xtest', { device_id: deviceId }, function(data) {
+        Swal.fire({
+            icon: 'success',
+            title: '启用XTest成功',
+            text: '已成功启用XTest服务',
+            timer: 1500,
+            confirmButtonText: '确定'
+        });
+    }).fail(function(xhr) {
+        Swal.fire({
+            icon: 'error',
+            title: '启用XTest失败',
+            text: '启用XTest服务失败',
+            timer: 1500,
+            confirmButtonText: '确定'
+        });
+    }).always(function() {
+        hideLoading();
+    });
+}
+// 停用Xtest
+function stopXtest() {
+    const deviceId = $('#device-select').val();
+    if (!deviceId) {
+        Swal.fire({
+            icon: 'warning',
+            title: '请选择设备',
+            text: '请选择设备。',
+            timer: 3000,
+            confirmButtonText: '确定'
+        });
+        return;
+    }
+
+    showLoading();
+
+    $.post('/stop_xtest', { device_id: deviceId }, function(data) {
+        Swal.fire({
+            icon: 'success',
+            title: '停用XTest成功',
+            text: '已成功停用XTest服务',
+            timer: 1500,
+            confirmButtonText: '确定'
+        });
+    }).fail(function(xhr) {
+        Swal.fire({
+            icon: 'error',
+            title: '停用XTest失败',
+            text: '停用XTest服务失败',
+            timer: 1500,
+            confirmButtonText: '确定'
+        });
+    }).always(function() {
+        hideLoading();
     });
 }
