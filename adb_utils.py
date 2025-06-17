@@ -155,14 +155,37 @@ def clear_screenshot_and_record_folders():
             logging.error(f"清理录屏文件夹 {file_path} 时出错: {e}")
 
 
-#  定义clipper应用读取目录
+#  定义Clipper应用读取目录
 def clipper_folders_path():
     # 获取项目根目录
     clipper_apks_root_path = os.path.dirname(os.path.abspath(__file__))
 
-    # 定义应用目录路径
     clipper_apks_path = os.path.join(clipper_apks_root_path, "static", "apks", "clipper_1.0.0.apk")
+    logging.info(f"获取到当前Clipper应用所在目录是: {clipper_apks_path}")
     return clipper_apks_path
+
+#  定义Xtestw文件读取目录
+def xtest_folders_path():
+    xtest_root_path = os.path.dirname(os.path.abspath(__file__))
+
+    xtest_file_path = os.path.join(xtest_root_path, "static", "apks", "xtest-agent")
+    logging.info(f"获取到当前Xtest文件所在目录是: {xtest_file_path}")
+    return xtest_file_path
+
+# 获取 bundletool.jar 的路径
+def get_bundletool_path():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    bundletool_path = os.path.join(script_dir, 'aab_conversion', 'bundletool.jar')
+    logging.info(f"bundletool.jar 路径设置为: {bundletool_path}")
+    return bundletool_path
+
+
+# 获取证书变量文件路径
+def get_certificate_var_file_path():
+    _, _, _, _, _, certificate_var_folder, _ = create_aab_converted_directories()
+    certificate_var_file = os.path.join(certificate_var_folder, 'certificate_var.json')
+    logging.info(f"证书变量文件路径设置为: {certificate_var_file}")
+    return certificate_var_file
 
 
 # 获取系统类型
@@ -223,6 +246,7 @@ def initialize_adb():
     if 'List of devices attached' not in result.stdout:
         raise Exception('Failed to connect to ADB server.')
     logging.info('获取到ADB服务初始化完毕...')
+    return adb_path
 
 
 # 获取设备列表
@@ -296,40 +320,81 @@ def uninstall_app(device_id, package_name):
         logging.error(f'卸载应用失败: {e}')
         return {'success': False, 'error': str(e)}
 
-
 # 安装应用
 def install_apk(device_id, apk_files):
     try:
-        logging.info(f'正在为设备 {device_id} 安装 APK 文件...')
+        logging.info(f'正在为设备 {device_id} 安装应用文件...')
         device = adbutils.adb.device(device_id)
+        adb_path = initialize_adb()
         results = []
 
         with tempfile.TemporaryDirectory() as temp_dir:
+            standalone_apk_list = []  # 普通 APK 列表
+            xapk_apk_groups = []  # XAPK 解压后的 APK 组
+
             for apk_file in apk_files:
-                apk_filename = apk_file.filename
-                if not apk_filename.lower().endswith('.apk'):
-                    logging.warning(f'跳过非APK文件: {apk_filename}')
-                    results.append({'filename': apk_filename, 'success': False, 'error': '非APK文件'})
+                apk_filename = apk_file.filename.lower()
+
+                if not (apk_filename.endswith('.apk') or apk_filename.endswith('.xapk')):
+                    logging.warning(f'跳过非 APK/XAPK 文件: {apk_filename}')
+                    results.append({'filename': apk_filename, 'success': False, 'error': '非APK或XAPK文件'})
                     continue
 
-                apk_path = os.path.join(temp_dir, apk_filename)
+                apk_path = os.path.join(temp_dir, apk_file.filename)
                 apk_file.save(apk_path)
-                logging.info(f'APK文件已保存到临时文件夹: {apk_path}')
+                logging.info(f'{apk_path}文件已保存到临时文件夹！')
 
+                if apk_filename.endswith('.apk'):
+                    standalone_apk_list.append(apk_path)
+
+                elif apk_filename.endswith('.xapk'):
+                    # 处理 XAPK
+                    try:
+                        extracted_dir = os.path.join(temp_dir, apk_filename.replace('.xapk', ''))
+                        os.makedirs(extracted_dir, exist_ok=True)
+
+                        with zipfile.ZipFile(apk_path, 'r') as zip_ref:
+                            zip_ref.extractall(extracted_dir)
+
+                        extracted_apks = [os.path.join(extracted_dir, f) for f in os.listdir(extracted_dir) if f.endswith('.apk')]
+
+                        if not extracted_apks:
+                            logging.error(f'XAPK {apk_filename} 中未找到APK文件')
+                            results.append({'filename': apk_filename, 'success': False, 'error': 'XAPK中未包含APK文件'})
+                            continue
+
+                        xapk_apk_groups.append(extracted_apks)
+                        logging.info(f'XAPK {apk_filename} 解压成功，包含 {len(extracted_apks)} 个APK文件')
+
+                    except Exception as e:
+                        logging.error(f'解压 XAPK {apk_filename} 失败: {e}')
+                        results.append({'filename': apk_filename, 'success': False, 'error': str(e)})
+
+            for apk in standalone_apk_list:
                 try:
-                    device.install(apk_path)
-                    logging.info(f'APK文件 {apk_filename} 安装成功')
-                    results.append({'filename': apk_filename, 'success': True})
+                    device.install(apk)
+                    logging.info(f'{apk}文件安装成功')
+                    results.append({'filename': os.path.basename(apk), 'success': True})
                 except Exception as e:
-                    logging.error(f'安装APK {apk_filename} 失败: {e}')
-                    results.append({'filename': apk_filename, 'success': False, 'error': str(e)})
+                    logging.error(f'{apk}文件安装失败: {e}')
+                    results.append({'filename': os.path.basename(apk), 'success': False, 'error': str(e)})
+
+            # 使用 adb install-multiple 安装 XAPK 拆分的 APK
+            for split_apk_list in xapk_apk_groups:
+                try:
+                    cmd = [adb_path, "-s", device_id, "install-multiple", "-r", "-t"] + split_apk_list
+                    subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                    logging.info(f'安装XAPK拆分的APK文件成功: {split_apk_list}')
+                    results.append({'filename': f'XAPK ({len(split_apk_list)} APKs)', 'success': True})
+                except subprocess.CalledProcessError as e:
+                    logging.error(f'安装XAPK拆分的APK文件失败: {e.stderr}')
+                    results.append({'filename': f'XAPK ({len(split_apk_list)} APKs)', 'success': False, 'error': e.stderr})
 
         return results
 
     except Exception as e:
-        logging.error(f'安装APK过程中发生错误: {e}')
+        logging.error(f'安装应用过程中发生错误: {e}')
         return [{'filename': 'unknown', 'success': False, 'error': str(e)}]
-
 
 # 截图函数
 def take_screenshot(device_id):
@@ -518,7 +583,6 @@ def get_new_device_info(device_id):
             # 如果某个属性缺失，则将其设置为 None
             if prop not in device_info:
                 device_info[prop] = None
-
         logging.info(f'获取到的设备信息: {device_info}')
         return device_info
 
@@ -566,6 +630,7 @@ def get_current_app_info(device_id):
             # 如果未找到 '/'，返回错误信息
             logging.warning('未找到当前运行的应用')
             return {'success': False, 'error': '未找到当前运行的应用'}
+        return None
     except Exception as e:
         # 在发生异常时记录错误并返回错误信息
         logging.error(f'获取当前应用信息失败: {e}')
@@ -579,138 +644,63 @@ def get_device_ip_address(device_id):
         # 获取设备的IP地址
         ip_output = device.shell('ip addr show wlan0').strip()
         ip_addresses = re.findall(r'inet (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})', ip_output)
-
+        logging.info(f'当前获取到的设备IP是：{ip_addresses}')
         return ip_addresses
     except Exception as e:
         logging.error(f"获取设备 IP 地址失败: {e}")
         return []
 
-
 # 开启无线调试
-def enable_wireless_debugging(device_id, max_retries=2):
+def enable_wireless_debugging(device_id):
     try:
         logging.info(f"正在为设备 {device_id} 启用无线调试...")
         device = adbutils.adb.device(device_id)
-        device.shell('setprop service.adb.tcp.port 5555')
-        logging.info("设置 service.adb.tcp.port 为 5555")
-        device.shell('stop adbd')
-        logging.info("停止 adb 服务")
-        device.shell('start adbd')
-        logging.info("启动 adb 服务")
 
-        # 获取设备IP地址列表
+        # 设置 ADB 端口并重启 ADB
+        device.shell(f'-s {device_id} setprop service.adb.tcp.port 5555')
+        device.shell('stop adbd')
+        device.shell('start adbd')
+
+        # 获取设备 IP 地址
         ip_addresses = get_device_ip_address(device_id)
         if not ip_addresses:
-            logging.warning("无法获取设备 IP 地址,无法连接到无线调试端口")
+            logging.error("无法获取设备 IP 地址")
             return {'success': False, 'error': '无法获取设备 IP 地址'}
 
-        # 尝试连接对应的IP地址
-        retries = 0
-        for ip_addr in ip_addresses:
-            port = '5555'
-            connect_cmd = f"adb connect {ip_addr}:{port}"
-            try:
-                subprocess.run(connect_cmd, shell=True, check=True)
-                logging.info(f"已连接到设备的无线调试端口: {ip_addr}:{port}")
+        # 直接尝试连接第一个 IP
+        ip_addr = ip_addresses[0]
+        subprocess.run(["adb", "connect", f"{ip_addr}:5555"], check=True)
+        logging.info(f"已连接到 {ip_addr}:5555")
 
-                # 发送验证命令
-                verify_cmd = f"adb -s {device_id} shell echo hello"
-                verify_result = subprocess.run(verify_cmd, shell=True, capture_output=True)
-                if verify_result.returncode == 0:
-                    logging.info("设备处于无线调试状态")
-                    return {'success': True}
-                else:
-                    logging.warning("设备未能正常响应验证命令，可能无线调试失败")
-                    return {'success': False, 'error': '设备未能正常响应验证命令，可能无线调试失败'}
-
-            except subprocess.CalledProcessError as e:
-                if "10061" in str(e):  # 目标计算机积极拒绝连接错误
-                    # 重新设置TCP端口
-                    device.shell(f'adb -s {device_id} tcpip 5555')
-                    logging.info(f"已重新设置设备 {device_id} 的无线调试端口为：5555")
-                    retries += 1
-                    if retries >= max_retries:
-                        logging.warning(f"已达到最大重试次数 ({max_retries}), 无法连接到任何 IP 地址的无线调试端口")
-                        return {'success': False, 'error': f"已达到最大重试次数 ({max_retries}), 无法连接到无线调试端口"}
-                    else:
-                        continue  # 继续尝试连接
-                logging.warning(f"无法连接到 {ip_addr}:{port}, 错误: {e}")
-
-        logging.warning("无法连接到任何 IP 地址的无线调试端口")
-        return {'success': False, 'error': '无法连接到无线调试端口'}
-
-    except subprocess.CalledProcessError as e:
-        logging.error(f"执行 adb 命令失败: {e}")
-        return {'success': False, 'error': str(e)}
+        return {'success': True}
     except Exception as e:
         logging.error(f"启用无线调试失败: {e}")
         return {'success': False, 'error': str(e)}
 
-
-# 关闭无线调试
-def disable_wireless_debugging(device_id, max_retries=3):
+# 停用无线调试
+def disable_wireless_debugging(device_id):
     try:
-        logging.info(f"正在为设备 {device_id} 禁用无线调试...")
-        device = adbutils.adb.device(device_id)
+        logging.info(f"正在为设备 {device_id} 停用无线调试...")
 
-        # 获取设备端口号
-        cmd = f"adb -s {device_id} shell getprop service.adb.tcp.port"
-        result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
-        if result.returncode != 0:
-            logging.warning(f"无法获取设备端口号,无法断开无线调试连接: {result.stderr}")
-            return {'success': False, 'error': '无法获取设备端口号'}
-        port = int(result.stdout.strip())
-        logging.info(f"设备端口号为 {port}")
-
-        # 获取设备IP地址列表
+        # 获取设备的 IP 地址列表
         ip_addresses = get_device_ip_address(device_id)
         if not ip_addresses:
-            logging.warning("无法获取设备 IP 地址,无法断开无线调试连接")
+            logging.error("无法获取设备 IP 地址，无法断开无线连接")
             return {'success': False, 'error': '无法获取设备 IP 地址'}
 
-        # 关闭设备端的无线调试选项
-        device.shell('stop adbd')
-        logging.info("停止 adb 服务")
-        device.shell('start adbd')
-        logging.info("启动 adb 服务")
-
-        # 断开对应IP地址的无线连接
-        disconnected = False
+        # 断开与设备的无线调试连接
         for ip_addr in ip_addresses:
-            retries = 0
-            while retries < max_retries:
-                disconnect_cmd = f"adb disconnect {ip_addr}:{port}"
-                try:
-                    subprocess.run(disconnect_cmd, shell=True, check=True)
-                    logging.info(f"已断开与设备 {ip_addr}:{port} 的无线连接")
-                    disconnected = True
-                    break
-                except subprocess.CalledProcessError as e:
-                    if "10061" in str(e):  # 目标计算机积极拒绝连接错误
-                        retries += 1
-                        if retries >= max_retries:
-                            logging.warning(f"已达到最大重试次数 ({max_retries}), 无法断开与 {ip_addr}:{port} 的无线连接")
-                        else:
-                            # 重新激活无线调试端口
-                            device.shell(f'adb -s {device_id} tcpip {port}')
-                            logging.info(f"已重新设置设备 {device_id} 的无线调试端口为：{port}")
-                            continue  # 继续尝试断开连接
-                    else:
-                        logging.warning(f"无法断开与 {ip_addr}:{port} 的连接, 错误: {e}")
-                        break
+            try:
+                logging.info(f"尝试断开与设备 {ip_addr}:5555 的无线连接")
+                subprocess.run(["adb", "-s", device_id, "disconnect", f"{ip_addr}:5555"], check=True)
+                logging.info(f"已断开与设备 {ip_addr}:5555 的无线连接")
+            except subprocess.CalledProcessError as e:
+                logging.warning(f"无法断开与设备 {ip_addr}:5555 的连接, 错误: {e}")
 
-        if disconnected:
-            logging.info("无线调试已禁用")
-            return {'success': True}
-        else:
-            logging.warning("无法断开与任何 IP 地址的无线连接")
-            return {'success': False, 'error': "无法断开与任何 IP 地址的无线连接"}
-
-    except subprocess.CalledProcessError as e:
-        logging.error(f"执行 adb 命令失败: {e}")
-        return {'success': False, 'error': str(e)}
+        logging.info("无线调试已停用")
+        return {'success': True}
     except Exception as e:
-        logging.error(f"禁用无线调试失败: {e}")
+        logging.error(f"停用无线调试失败: {e}")
         return {'success': False, 'error': str(e)}
 
 
@@ -753,22 +743,6 @@ def stop_scrcpy():
     except Exception as e:
         logging.exception("scrcpy停用失败")
         return {'success': False, 'error': str(e)}, 500
-
-
-# 获取 bundletool.jar 的路径
-def get_bundletool_path():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    bundletool_path = os.path.join(script_dir, 'aab_conversion', 'bundletool.jar')
-    logging.info(f"bundletool.jar 路径设置为: {bundletool_path}")
-    return bundletool_path
-
-
-# 获取证书变量文件路径
-def get_certificate_var_file_path():
-    _, _, _, _, _, certificate_var_folder, _ = create_aab_converted_directories()
-    certificate_var_file = os.path.join(certificate_var_folder, 'certificate_var.json')
-    logging.info(f"证书变量文件路径设置为: {certificate_var_file}")
-    return certificate_var_file
 
 
 # 获取证书信息
@@ -908,7 +882,7 @@ def generate_signature():
         # 检查 keytool 是否存在
         if not shutil.which("keytool"):
             logging.error("keytool 未找到，请确保已正确配置 JDK 并将其添加到系统 PATH 中。")
-            return
+            return None
 
         _, _, _, _, certificate_resources_folder, certificate_var_folder, generate_random_signature_folder = create_aab_converted_directories()
 
@@ -978,8 +952,10 @@ def generate_signature():
 
     except subprocess.CalledProcessError as e:
         logging.error(f"生成签名证书时出错: {e}")
+        return None
     except Exception as e:
         logging.error(f"发生意外错误: {e}")
+        return None
 
 
 # 设备点击：电源、HOME、菜单、返回
@@ -1074,7 +1050,7 @@ def start_clipper(device_id):
         # 启动应用
         device.shell('am start -n com.utils.clipper/com.utils.clipper.Main')
 
-        # 等待应用启动并初始化，最多重试5次
+        # 等待应用启动并初始化，最多重试3次
         for i in range(3):
             time.sleep(1)  # 每次检查间隔1秒
             if is_clipper_running(device_id):
@@ -1093,16 +1069,37 @@ def start_clipper(device_id):
 def is_clipper_running(device_id):
     try:
         device = adbutils.adb.device(device_id)
-        result = device.shell('dumpsys window | grep mCurrentFocus')
-        running = 'com.utils.clipper' in result
-        if running:
-            logging.info("Clipper应用在前台运行")
+
+        if not device.is_screen_on():
+            logging.error('检测到设备屏幕已锁屏，请解锁后重试。')
+            return False
+
+        process_check = device.shell('pidof com.utils.clipper').strip()
+        is_running = bool(process_check)
+
+        window_focus = device.shell('dumpsys window | grep mCurrentFocus')
+        is_foreground = 'com.utils.clipper' in window_focus
+
+        if is_running and is_foreground:
+            logging.info("Clipper正处于前台运行。")
+            return True
+
+        if is_running and not is_foreground:
+            logging.info("Clipper在后台运行，但未在前台，尝试启动Clipper...")
         else:
-            logging.info("Clipper应用未在前台运行")
-            device.shell('am start -n com.utils.clipper/com.utils.clipper.Main')
-            time.sleep(1)  # 等待应用完全启动
-            return running
-        return running
+            logging.info("Clipper未运行，尝试启动Clipper...")
+
+        device.shell('am start -n com.utils.clipper/com.utils.clipper.Main')
+        time.sleep(1)  # 等待 1 秒，确保应用启动
+
+        window_focus = device.shell('dumpsys window | grep mCurrentFocus')
+        if 'com.utils.clipper' in window_focus:
+            logging.info("Clipper成功启动并进入前台。")
+            return True
+        else:
+            logging.error("Clipper启动失败或未进入前台。")
+            return False
+
     except Exception as e:
         logging.error(f"检查Clipper运行状态失败: {e}")
         return False
@@ -1114,7 +1111,7 @@ def set_clipboard(device_id, text):
         if not is_clipper_running(device_id):
             logging.info("Clipper未运行，尝试启动...")
             if not start_clipper(device_id):
-                logging.error("无法启动Clipper应用")
+                logging.error("无法启动Clipper应用。")
                 return False
             time.sleep(1)
         device = adbutils.adb.device(device_id)
@@ -1122,9 +1119,9 @@ def set_clipboard(device_id, text):
         success = 'result=-1' in result and 'Text is copied into clipboard' in result
 
         if success:
-            logging.info("成功设置剪贴板内容")
+            logging.info("成功设置剪贴板内容。")
         else:
-            logging.error("设置剪贴板内容失败")
+            logging.error("设置剪贴板内容失败。")
 
         return success
     except Exception as e:
@@ -1155,7 +1152,7 @@ def get_clipboard(device_id):
         match = re.search(r'data="([^"]*)"', result)
         if match:
             clipboard_text = match.group(1)
-            logging.info(f"成功获取剪贴板内容: {clipboard_text[:50]}...")  # 只记录前50个字符
+            logging.info(f"成功获取剪贴板内容: {clipboard_text[:1000]}...")  # 只记录前50个字符
             return clipboard_text
         else:
             logging.error("未找到剪贴板内容")
@@ -1165,6 +1162,7 @@ def get_clipboard(device_id):
         logging.error(f"获取剪贴板内容失败: {e}")
         return None
 
+# 打开语言设置界面
 def open_locale_settings(device_id):
     try:
         device = adbutils.adb.device(device_id)
@@ -1172,3 +1170,62 @@ def open_locale_settings(device_id):
         logging.info(f"已在设备 {device_id} 上打开语言设置界面")
     except Exception as e:
         logging.error(f"打开语言设置界面失败: {e}")
+
+# 检查是否存在Xtest文件
+def check_xtest_exists_on_device(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        result = device.shell('ls /data/local/tmp/xtest-agent')
+        return 'No such file' not in result and result.strip() != ''
+    except Exception as e:
+        logging.error(f"检查Xtest文件文件失败: {e}")
+        return False
+
+#将Xtest文件推送到设备
+def push_xtest_to_device(device_id):
+    xtest_file_path = xtest_folders_path()
+
+    if not os.path.exists(xtest_file_path):
+        logging.error(f"{xtest_file_path}路径下不存在Xtest文件")
+        return False
+
+    try:
+        device = adbutils.adb.device(device_id)
+        device.sync.push(xtest_file_path, '/data/local/tmp/xtest-agent')
+        logging.error(f"对设备{device_id}推送Xtest文件成功")
+        return True
+    except Exception as e:
+        logging.error(f"对设备{device_id}推送Xtest发生异常: {e}")
+        return False
+
+#设置Xtest文件权限
+def set_xtest_permissions(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        device.shell('chmod 755 /data/local/tmp/xtest-agent')
+        return True
+    except Exception as e:
+        logging.error(f"对设备{device_id}的Xtest权限设置发生异常: {e}")
+        return False
+
+#启动Xtest服务进程
+def start_xtest_server(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        device.shell('/data/local/tmp/xtest-agent server -d')
+        logging.error(f"设备{device_id}启用Xtest服务成功")
+        return True
+    except Exception as e:
+        logging.error(f"设备{device_id}启用Xtest服务失败: {e}")
+        return False
+
+#停止Xtest服务进程
+def stop_xtest_server(device_id):
+    try:
+        device = adbutils.adb.device(device_id)
+        device.shell('/data/local/tmp/xtest-agent server --stop')
+        logging.error(f"设备{device_id}停用Xtest服务成功")
+        return True
+    except Exception as e:
+        logging.error(f"设备{device_id}停用Xtest服务失败: {e}")
+        return False
