@@ -64,20 +64,20 @@
                         <input type="text" id="app-search-input" class="form-control mb-2" placeholder="请输入想要搜索的三方应用包名">
                         <select id="app-select" class="form-select mb-2"></select>
                         <button id="uninstall-app-button" class="btn btn-danger w-100 mb-2" onclick="uninstallApp()">卸载应用</button>
-                        <input type="file" id="apk-file" accept=".apk" class="form-control mb-2" multiple>
-                        <div id="install-result" class="modal">
-                            <div class="modal-content">
-                                <h2>应用安装结果</h2>
-                                <div id="failed-installs">
-                                    <h3>安装失败:</h3>
-                                    <ul id="failed-list"></ul>
-                                </div>
-                                <div id="successful-installs">
-                                    <h3>安装成功:</h3>
-                                    <ul id="success-list"></ul>
-                                </div>
-                                <button id="close-result" class="btn btn-primary">确定</button>
+                        <input type="file" id="apk-file" accept=".apk,.xapk" class="form-control mb-2" multiple>
+                        <div id="install-result" class="modal" style="display: none;">
+                        <div class="modal-content">
+                            <h2>应用安装结果</h2>
+                            <div id="successful-installs" style="display: none;">
+                                <h3>✅ 安装成功:</h3>
+                                <ul id="success-list"></ul>
                             </div>
+                            <div id="failed-installs" style="display: none;">
+                                <h3>❌ 安装失败:</h3>
+                                <ul id="failed-list"></ul>
+                            </div>
+                            <button id="close-result" class="btn btn-primary">确定</button>
+                        </div>
                         </div>
                         <button id="install-apk-button" class="btn btn btn-success w-100" onclick="installApk()">单/多应用安装</button>
                         <button id="clear-app-cache-button" class="btn btn-warning w-100 mb-2" onclick="clearAppCache()">清除应用缓存并启动</button>
@@ -147,12 +147,21 @@
                                     <button id="simulate-back-button" class="btn btn-secondary w-100" onclick="simulateKeyPress('back')">模拟返回键</button>
                                 </div>
                             </div>
+
                             <div class="row g-2 mb-2">
                             <div class="col-6">
                                 <button id="start-scrcpy-button" class="btn btn-primary w-100" onclick="startScrcpy()">启用互动投屏</button>
                             </div>
                             <div class="col-6">
                                 <button id="stop-scrcpy-button" class="btn btn-danger w-100" onclick="stopScrcpy()">停用互动投屏</button>
+                            </div>
+                            <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <button id="start-xtest-button" class="btn btn-success w-100" onclick="startXtest()">启用XTest</button>
+                            </div>
+                            <div class="col-6">
+                                <button id="stop-xtest-button" class="btn btn-danger w-100" onclick="stopXtest()">停用XTest</button>
+                            </div>
                             </div>
                             <button id="open-locale-settings-button" class="btn btn-success w-100 mb-2" onclick="openLocaleSettings()">打开语言设置界面</button>
                             </div>
