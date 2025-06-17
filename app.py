@@ -3,6 +3,7 @@ import json
 import time
 import datetime
 import logging
+import adbutils
 import adb_utils
 import threading
 import webbrowser
@@ -89,19 +90,25 @@ def uninstall_app_route():
     result = uninstall_app(device_id, package_name)
     return jsonify(result)
 
-
 # 安装应用
 @app.route('/install_apk', methods=['POST'])
-def install_apk():
-    device_id = request.form.get('device_id')
-    apk_files = request.files.getlist('apk_files')
+def install_apk_route():
+    try:
+        device_id = request.form.get('device_id')
+        apk_files = request.files.getlist('apk_files')
 
-    if not apk_files:
-        return jsonify({'success': False, 'error': '没有选择APK文件'})
+        if not device_id:
+            return jsonify({'success': False, 'error': '设备ID不能为空'})
 
-    results = adb_utils.install_apk(device_id, apk_files)
-    return jsonify(results)
+        if not apk_files:
+            return jsonify({'success': False, 'error': '没有选择APK或XAPK文件'})
 
+        results = adb_utils.install_apk(device_id, apk_files)
+        return jsonify(results)
+
+    except Exception as e:
+        logging.error(f'安装 APK 过程中发生错误: {e}')
+        return jsonify({'success': False, 'error': str(e)})
 
 # 截图
 @app.route('/screenshot', methods=['POST'])
@@ -355,7 +362,7 @@ def clear_app_cache():
     return jsonify({"status": "success"})
 
 
-# 停止应用运行
+# 停用应用运行
 @app.route('/stop_app', methods=['POST'])
 def stop_app():
     device_id = request.form.get('device_id')
@@ -370,6 +377,11 @@ def check_clipper():
     if not device_id:
         return jsonify({"status": "error", "message": "未选择设备"})
 
+    device = adbutils.adb.device(device_id)
+    if not device.is_screen_on():
+        logging.error(f"设备 {device_id} 处于锁屏状态，请解锁后重试。")
+        return jsonify({"status": "error", "message": "设备已锁屏，请解锁后重试"})
+
     # 检查是否已安装
     installed = adb_utils.check_clipper_installed(device_id)
     if not installed:
@@ -378,11 +390,11 @@ def check_clipper():
             return jsonify({"status": "error", "message": "Clipper安装失败"})
         time.sleep(1)  # 等待安装完成
 
-    # 检查是否正在运行，如果没有运行则启动
+    # 检查是否正在运行，如果没有运行则启用
     if not adb_utils.is_clipper_running(device_id):
         success = adb_utils.start_clipper(device_id)
         if not success:
-            return jsonify({"status": "error", "message": "Clipper启动失败"})
+            return jsonify({"status": "error", "message": "Clipper启用失败"})
 
     return jsonify({"status": "success"})
 
@@ -426,16 +438,72 @@ def open_locale_settings():
         logging.error(f"打开语言设置失败: {e}")
         return jsonify({"status": "error", "message": "打开语言设置失败"})
 
+# 启用Xtest服务进程
+@app.route('/start_xtest', methods=['POST'])
+def start_xtest():
+    device_id = request.form.get('device_id')
+
+    if not device_id:
+        return jsonify({"status": "error", "message": "未选择设备"}), 400
+
+    try:
+        # 获取设备对象
+        device_id = request.form.get('device_id')
+
+        # 检查设备上是否存在 xtest-agent
+        if not adb_utils.check_xtest_exists_on_device(device_id):
+            # 如果不存在，推送文件
+            if not adb_utils.push_xtest_to_device(device_id):
+                return jsonify({"status": "error", "message": "推送 Xtest-agent 失败"}), 500
+
+            # 设置文件权限
+            if not adb_utils.set_xtest_permissions(device_id):
+                return jsonify({"status": "error", "message": "设置 Xtest-agent 权限失败"}), 500
+
+        # 停用可能存在的旧服务
+        adb_utils.stop_xtest_server(device_id)
+
+        # 启用新的服务
+        if adb_utils.start_xtest_server(device_id):
+            return jsonify({"status": "success", "message": "启用 Xtest 服务成功"})
+        else:
+            return jsonify({"status": "error", "message": "启用 Xtest 服务失败"}), 500
+
+    except Exception as e:
+        logging.error(f"启用 xtest 发生异常: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# 停用Xtest服务进程
+@app.route('/stop_xtest', methods=['POST'])
+def stop_xtest():
+    device_id = request.form.get('device_id')
+
+    if not device_id:
+        return jsonify({"status": "error", "message": "未选择设备"}), 400
+
+    try:
+        # 获取设备对象
+        device_id = request.form.get('device_id')
+
+        if adb_utils.stop_xtest_server(device_id):
+            return jsonify({"status": "success", "message": "停用 Xtest 服务成功"})
+        else:
+            return jsonify({"status": "error", "message": "停用 Xtest 服务失败"}), 500
+
+    except Exception as e:
+        logging.error(f"停用 Xtest 服务发生异常: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 # 定义一个打开网页的函数
 use_local_ip = get_local_ip()
 def open_browser():
-     # 使用延迟确保 Flask 应用程序完全启动
+     # 使用延迟确保 Flask 应用程序完全启用
      time.sleep(1)
      webbrowser.open_new_tab(f'http://{use_local_ip}:5001')
 
 
 if __name__ == '__main__':
-    # 在 Flask 应用程序启动之前创建一个线程来打开浏览器
+    # 在 Flask 应用程序启用之前创建一个线程来打开浏览器
     if not hasattr(app, 'browser_opened') or not app.browser_opened:
         browser_thread = threading.Thread(target=open_browser)
         browser_thread.start()
